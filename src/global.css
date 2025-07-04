@@ -1,25 +1,46 @@
 @import 'tailwindcss';
 @import 'tw-animate-css';
 
-@layer components {
-  .form-element {
-    @apply box-border w-full resize-y rounded-lg border border-[#cbd5e1] bg-white px-4 py-2 font-sans text-base font-medium text-[#2d2d2d] transition-all duration-200 ease-in-out outline-none;
-    border-width: 1.5px;
-  }
+.rounded-input {
+  border-radius: 10px;
+}
 
-  .form-element:focus {
-    @apply border-[#3b82f6];
-    box-shadow: 0 0 6px 2px rgba(59, 130, 246, 0.4);
-  }
+.form-element {
+  box-sizing: border-box;
+  width: 100%;
+  resize: vertical;
+  border-radius: 10px;
+  border: 1.5px solid #cbd5e1;
+  background-color: white;
+  padding: 0.5rem 1rem;
+  font-family: 'Noto Sans', sans-serif;
+  font-size: 1rem;
+  font-weight: 500;
+  color: #2d2d2d;
+  transition: all 0.2s ease-in-out;
+  outline: none;
+}
 
-  .form-element:disabled {
-    @apply cursor-not-allowed border-[#d1d5db] bg-[#f3f4f6] text-[#9ca3af] opacity-60;
-  }
+.form-element:focus {
+  border-color: #3b82f6;
+  box-shadow: 0 0 6px 2px rgba(59, 130, 246, 0.4);
+}
 
-  /* Toast 通知 */
-  .toast-error {
-    @apply rounded-lg border-[1px] border-solid border-[#fecaca] bg-[#fef2f2] p-3 text-[#b91c1c];
-  }
+.form-element:disabled {
+  cursor: not-allowed;
+  border-color: #d1d5db;
+  background-color: #f3f4f6;
+  color: #9ca3af;
+  opacity: 0.6;
+}
+
+/* Toast 通知 */
+.toast-error {
+  border-radius: 0.5rem;
+  border: 1px solid #fecaca;
+  background-color: #fef2f2;
+  padding: 0.75rem;
+  color: #b91c1c;
 }
 
 @custom-variant dark (&:is(.dark *));
