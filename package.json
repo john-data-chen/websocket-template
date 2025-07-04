@@ -9,42 +9,72 @@
     "lint": "eslint . --fix",
     "preview": "vite preview",
     "format": "prettier --write .",
-    "prepare": "husky",
-    "lint-staged": "lint-staged"
+    "prepare": "if [ \"$NODE_ENV\" != \"production\" ]; then husky; fi",
+    "lint-staged": "lint-staged",
+    "test": "vitest run --coverage",
+    "test:watch": "vitest watch",
+    "playwright": "npx playwright test"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
       "eslint --fix"
     ],
     "*.{js,jsx,ts,tsx,css,md,mdx,html,json,scss,less,css,ts,tsx}": [
-      "prettier --write"
+      "prettier --write --no-error-on-unmatched-pattern"
     ]
   },
+  "engines": {
+    "node": "==22.x"
+  },
   "dependencies": {
+    "@hookform/resolvers": "^5.1.1",
+    "@radix-ui/react-alert-dialog": "^1.1.14",
+    "@radix-ui/react-dialog": "^1.1.14",
+    "@radix-ui/react-label": "^2.1.7",
+    "@radix-ui/react-slot": "^1.2.3",
+    "@radix-ui/react-switch": "^1.2.5",
     "@tailwindcss/vite": "^4.1.11",
+    "@types/lodash.debounce": "^4.0.9",
+    "@vercel/analytics": "^1.5.0",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "lodash.debounce": "^4.0.8",
+    "lucide-react": "^0.525.0",
     "react": "^19.1.0",
     "react-dom": "^19.1.0",
     "react-hook-form": "^7.59.0",
+    "socket.io-client": "^4.8.1",
+    "sonner": "^2.0.6",
+    "tailwind-merge": "^3.3.1",
     "tailwindcss": "^4.1.11",
-    "zod": "^3.25.71",
+    "zod": "^3.25.73",
     "zustand": "^5.0.6"
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
+    "@playwright/test": "^1.53.2",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
     "@trivago/prettier-plugin-sort-imports": "^5.2.2",
+    "@types/node": "^24.0.10",
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react-swc": "^3.10.2",
+    "@vitest/coverage-v8": "3.2.4",
     "eslint": "^9.30.1",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
     "globals": "^16.3.0",
     "husky": "^9.1.7",
+    "jsdom": "^26.1.0",
     "lint-staged": "^16.1.2",
     "prettier": "^3.6.2",
     "prettier-plugin-tailwindcss": "^0.6.13",
+    "tw-animate-css": "^1.3.5",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.35.1",
-    "vite": "^7.0.0"
+    "vite": "^7.0.2",
+    "vitest": "^3.2.4"
   }
 }

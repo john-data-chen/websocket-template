@@ -24,3 +24,12 @@ dist-ssr
 *.sw?
 
 .windsurfrules
+
+# test reports
+coverage
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
