@@ -291,7 +291,7 @@ export default function UserForm({
                     </FormLabel>
                     <FormControl>
                       <Input
-                        className="form-element"
+                        className="form-element h-auto"
                         placeholder="請輸入姓名 (2-10 字元)"
                         {...field}
                       />
@@ -310,7 +310,7 @@ export default function UserForm({
                     </FormLabel>
                     <FormControl>
                       <Input
-                        className="form-element"
+                        className="form-element h-auto"
                         placeholder="請輸入電子郵件"
                         type="email"
                         {...field}
@@ -360,6 +360,7 @@ export default function UserForm({
                     <Textarea
                       placeholder="請輸入描述 (5-200 字元)"
                       className="form-element min-h-[120px]"
+                      style={{ minHeight: '120px' }}
                       {...field}
                     />
                   </FormControl>
