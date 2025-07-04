@@ -2,7 +2,6 @@
 @import 'tw-animate-css';
 
 @layer components {
-  /* 表單元素 */
   .form-element {
     @apply box-border w-full resize-y rounded-lg border border-[#cbd5e1] bg-white px-4 py-2 font-sans text-base font-medium text-[#2d2d2d] transition-all duration-200 ease-in-out outline-none;
     border-width: 1.5px;

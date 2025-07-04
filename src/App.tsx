@@ -11,7 +11,7 @@ function App() {
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   const [wsConnected, setWsConnected] = useState(false);
 
-  // 監聽全局 WebSocket 連接狀態
+  // Monitor WebSocket connection status
   useEffect(() => {
     const checkConnection = () => {
       try {
@@ -31,7 +31,7 @@ function App() {
           });
         };
 
-        // 設置定時器檢查連接
+        // Set up connection check interval
         const timer = setInterval(() => {
           if (ws.readyState === WebSocket.OPEN) {
             ws.close();
@@ -54,7 +54,6 @@ function App() {
     <>
       <Toaster position="top-right" richColors />
       <div className="min-h-screen bg-gray-50">
-        {/* 頂部導航欄 */}
         <header className="bg-white shadow-sm">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
             <div className="flex items-center space-x-4">
@@ -88,7 +87,6 @@ function App() {
           </div>
         </header>
 
-        {/* 主要內容區域 */}
         <main className="container mx-auto px-4 py-8">
           {username ? (
             <UserTable />
@@ -107,12 +105,10 @@ function App() {
           )}
         </main>
 
-        {/* 登入對話框 */}
         <UsernameDialog
           open={isLoginDialogOpen}
           onOpenChange={(open) => {
             setIsLoginDialogOpen(open);
-            // 如果用戶已經登入，確保對話框保持關閉
             if (username) {
               setIsLoginDialogOpen(false);
             }

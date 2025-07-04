@@ -17,8 +17,8 @@ export const useSessionStore = create<SessionState>()(
       isLoggedIn: () => !!get().username
     }),
     {
-      name: 'session-storage', // 存儲的 key 名稱
-      storage: createJSONStorage(() => sessionStorage) // 使用 sessionStorage
+      name: 'user-session',
+      storage: createJSONStorage(() => sessionStorage)
     }
   )
 );

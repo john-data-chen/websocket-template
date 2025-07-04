@@ -18,10 +18,10 @@ export function useWebSocket(
   const maxReconnectAttempts = 5;
   const reconnectInterval = 3000; // 3 seconds
 
-  // 保存回調函數的引用，避免不必要的重連
+  // Save callback references to avoid unnecessary re-connections
   const callbacksRef = useRef({ onMessage, onOpen, onClose, onError });
 
-  // 更新回調函數引用
+  // Update callback references when they change
   useEffect(() => {
     callbacksRef.current = { onMessage, onOpen, onClose, onError };
   }, [onMessage, onOpen, onClose, onError]);
@@ -56,7 +56,7 @@ export function useWebSocket(
         if (!isMounted.current) return;
 
         try {
-          // 檢查是否是有效的 JSON 字符串
+          // Check if it's a valid JSON string
           if (typeof event.data === 'string') {
             const message = JSON.parse(event.data) as WebSocketMessage;
             callbacksRef.current.onMessage?.(message);
@@ -79,7 +79,7 @@ export function useWebSocket(
         console.log('WebSocket disconnected');
         callbacksRef.current.onClose?.();
 
-        // 嘗試重新連接
+        // Attempt to reconnect
         if (reconnectAttempts.current < maxReconnectAttempts) {
           reconnectAttempts.current += 1;
           console.log(
@@ -98,7 +98,7 @@ export function useWebSocket(
         console.error('WebSocket readyState:', socket.readyState);
         console.error('WebSocket URL:', url);
 
-        // 如果連接關閉，嘗試重新連接
+        // If connection is closed, attempt to reconnect
         if (socket.readyState === WebSocket.CLOSED) {
           console.log(
             'WebSocket connection closed, attempting to reconnect...'
@@ -135,7 +135,7 @@ export function useWebSocket(
         `WebSocket is not connected. ReadyState: ${ws.current.readyState}`
       );
 
-      // 如果連接關閉，嘗試重新連接
+      // If connection is closed, attempt to reconnect
       if (ws.current.readyState === WebSocket.CLOSED) {
         console.log('Attempting to reconnect...');
         connect();
