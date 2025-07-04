@@ -12,7 +12,8 @@
     "prepare": "husky",
     "lint-staged": "lint-staged",
     "test": "vitest run --coverage",
-    "test:watch": "vitest watch"
+    "test:watch": "vitest watch",
+    "playwright": "pnpm run playwright test"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -50,6 +51,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.30.1",
+    "@playwright/test": "^1.53.2",
     "@testing-library/jest-dom": "^6.6.3",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",
