@@ -17,11 +17,15 @@ import {
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { WEBSOCKET_URL, type WebSocketMessage } from '@/constants/websocket';
+import { useWebSocket } from '@/hooks/useWebSocket';
+import { useSessionStore } from '@/stores/useSessionStore';
 import type { User } from '@/types/user';
 import { zodResolver } from '@hookform/resolvers/zod';
 import debounce from 'lodash.debounce';
-import { useCallback, useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
+import { toast } from 'sonner';
 import * as z from 'zod';
 
 const formSchema = z.object({
@@ -62,6 +66,59 @@ export default function UserForm({
   user,
   onSubmit
 }: UserFormProps) {
+  const { username } = useSessionStore();
+  const [, setEditingUsers] = useState<string[]>([]);
+  const toastIdRef = useRef<string | number | null>(null);
+
+  const handleWebSocketMessage = useCallback(
+    (message: WebSocketMessage) => {
+      console.log('Received WebSocket message:', message);
+
+      if (
+        message.type === 'editing_status_update' &&
+        user?.id === message.payload.recordId
+      ) {
+        const otherUsers = message.payload.users.filter(
+          (u: string) => u !== username
+        );
+        console.log('Other users editing:', otherUsers);
+
+        setEditingUsers(otherUsers);
+
+        // 顯示或更新 Toast 通知
+        if (otherUsers.length > 0) {
+          const notificationMessage = `正在編輯的使⽤者：${otherUsers.join(', ')}`;
+          console.log('Showing notification:', notificationMessage);
+
+          if (toastIdRef.current) {
+            toast.dismiss(toastIdRef.current);
+          }
+
+          toastIdRef.current = toast(notificationMessage, {
+            duration: Infinity,
+            id: toastIdRef.current?.toString(),
+            style: {
+              background: '#fef2f2',
+              color: '#b91c1c',
+              border: '1px solid #fecaca',
+              padding: '12px',
+              borderRadius: '8px'
+            }
+          });
+        } else if (toastIdRef.current) {
+          console.log('No other users editing, dismissing notification');
+          toast.dismiss(toastIdRef.current);
+          toastIdRef.current = null;
+        }
+      }
+    },
+    [user?.id, username]
+  );
+
+  // WebSocket 連接
+  const { sendMessage } = useWebSocket(WEBSOCKET_URL, {
+    onMessage: handleWebSocketMessage
+  });
   const defaultValues = useMemo(
     () => ({
       name: '',
@@ -134,6 +191,53 @@ export default function UserForm({
       debouncedSaveDraft.cancel();
     };
   }, [form, debouncedSaveDraft]);
+
+  // 當表單開啟/關閉時，發送相應的 WebSocket 消息
+  useEffect(() => {
+    if (!user?.id) return;
+
+    if (open) {
+      // 發送開始編輯消息
+      sendMessage({
+        type: 'start_editing',
+        payload: {
+          recordId: user.id,
+          userName: username || 'anonymous'
+        }
+      });
+    } else {
+      // 發送停止編輯消息
+      sendMessage({
+        type: 'stop_editing',
+        payload: {
+          recordId: user.id,
+          userName: username || 'anonymous'
+        }
+      });
+
+      // 清除編輯者列表
+      setEditingUsers([]);
+
+      // 關閉 Toast 通知
+      if (toastIdRef.current) {
+        toast.dismiss(toastIdRef.current);
+        toastIdRef.current = null;
+      }
+    }
+
+    return () => {
+      // 組件卸載時發送停止編輯消息
+      if (user?.id) {
+        sendMessage({
+          type: 'stop_editing',
+          payload: {
+            recordId: user.id,
+            userName: username || 'anonymous'
+          }
+        });
+      }
+    };
+  }, [open, user?.id, username, sendMessage]);
 
   // 當表單開啟時，重置表單並載入草稿
   useEffect(() => {
