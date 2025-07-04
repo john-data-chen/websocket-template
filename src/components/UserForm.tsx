@@ -2,6 +2,7 @@ import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle
 } from '@/components/ui/dialog';
@@ -270,6 +271,9 @@ export default function UserForm({
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
           <DialogTitle>{user ? '編輯使用者' : '新增使用者'}</DialogTitle>
+          <DialogDescription>
+            {user ? '編輯使用者資訊表單' : '新增使用者資訊表單'}
+          </DialogDescription>
         </DialogHeader>
         <Form {...form}>
           <form
