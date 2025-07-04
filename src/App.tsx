@@ -150,17 +150,19 @@ function App() {
           <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
               <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
-                <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
-                  用戶管理系統
-                </h1>
-                <div className="flex items-center">
-                  <span
-                    className={`h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full ${wsConnected ? 'bg-green-500' : 'bg-red-500'} mr-1.5 sm:mr-2`}
-                    aria-hidden="true"
-                  />
-                  <span className="text-xs sm:text-sm text-gray-500">
-                    {wsConnected ? '已連接' : '離線'}
-                  </span>
+                <div className="flex items-center space-x-3">
+                  <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
+                    用戶管理系統
+                  </h1>
+                  <div className="flex items-center">
+                    <span
+                      className={`h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full ${wsConnected ? 'bg-green-500' : 'bg-red-500'} mr-1.5 sm:mr-2`}
+                      aria-hidden="true"
+                    />
+                    <span className="text-xs sm:text-sm text-gray-500">
+                      {wsConnected ? '已連接' : '離線'}
+                    </span>
+                  </div>
                 </div>
               </div>
               {username && (
