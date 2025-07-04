@@ -1,3 +1,4 @@
+import { Analytics } from '@vercel/analytics/react';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast, Toaster } from 'sonner';
 import { Button } from './components/ui/button';
@@ -144,6 +145,7 @@ function App() {
 
   return (
     <>
+      <Analytics />
       <Toaster position="bottom-right" richColors />
       <div className="min-h-screen bg-gray-50">
         <header className="bg-white shadow-sm sticky top-0 z-10">
