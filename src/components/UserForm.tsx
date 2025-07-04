@@ -62,12 +62,15 @@ export default function UserForm({
   user,
   onSubmit
 }: UserFormProps) {
-  const defaultValues = {
-    name: '',
-    email: '',
-    isActive: true,
-    description: ''
-  };
+  const defaultValues = useMemo(
+    () => ({
+      name: '',
+      email: '',
+      isActive: true,
+      description: ''
+    }),
+    []
+  );
 
   // 生成草稿的鍵名
   const draftKey = useMemo(
@@ -153,7 +156,7 @@ export default function UserForm({
         form.reset(defaultValues);
       }
     }
-  }, [open, user, form, loadDraft]);
+  }, [open, user, form, loadDraft, defaultValues]);
 
   const handleSubmit = (data: UserFormValues) => {
     // 提交表單前清除草稿
