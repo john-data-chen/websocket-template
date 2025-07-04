@@ -1,7 +1,7 @@
 'use client';
 
 import { useSessionStore } from '@/stores/useSessionStore';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { Button } from './ui/button';
 import {
   Dialog,
@@ -14,23 +14,47 @@ import {
 import { Label } from './ui/label';
 
 interface UsernameDialogProps {
+  open?: boolean;
+  onOpenChange?: (open: boolean) => void;
   onUsernameSet?: (username: string) => void;
 }
 
-export function UsernameDialog({ onUsernameSet }: UsernameDialogProps) {
-  const [isOpen, setIsOpen] = useState(false);
+export function UsernameDialog({
+  open: controlledOpen,
+  onOpenChange,
+  onUsernameSet
+}: UsernameDialogProps) {
   const [inputValue, setInputValue] = useState('');
   const [error, setError] = useState('');
   const { username, setUsername } = useSessionStore();
 
+  // 決定是否使用受控或非受控狀態
+  const isControlled = controlledOpen !== undefined;
+
+  // 如果是非受控模式，使用內部狀態
+  const [internalOpen, setInternalOpen] = useState(false);
+
+  // 合併受控和非受控的開啟狀態
+  const isOpen = isControlled ? controlledOpen : internalOpen;
+
+  const handleOpenChange = useCallback(
+    (open: boolean) => {
+      if (!isControlled) {
+        setInternalOpen(open);
+      }
+      onOpenChange?.(open);
+    },
+    [isControlled, onOpenChange]
+  );
+
   useEffect(() => {
-    // 如果沒有用戶名，則顯示對話框
-    if (!username) {
-      setIsOpen(true);
-    } else if (onUsernameSet) {
+    // 如果沒有用戶名，則顯示對話框（僅在非受控模式下）
+    if (!isControlled && !username) {
+      handleOpenChange(true);
+    } else if (username && onUsernameSet) {
       onUsernameSet(username);
     }
-  }, [username, onUsernameSet]);
+  }, [username, onUsernameSet, isControlled, handleOpenChange]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -41,7 +65,7 @@ export function UsernameDialog({ onUsernameSet }: UsernameDialogProps) {
 
     // 使用 zustand 設置用戶名
     setUsername(inputValue);
-    setIsOpen(false);
+    handleOpenChange(false);
     setError('');
 
     if (onUsernameSet) {
@@ -50,7 +74,7 @@ export function UsernameDialog({ onUsernameSet }: UsernameDialogProps) {
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px] p-6 rounded-2xl">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
