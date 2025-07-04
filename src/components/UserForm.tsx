@@ -97,13 +97,7 @@ export default function UserForm({
           toastIdRef.current = toast(notificationMessage, {
             duration: Infinity,
             id: toastIdRef.current?.toString(),
-            style: {
-              background: '#fef2f2',
-              color: '#b91c1c',
-              border: '1px solid #fecaca',
-              padding: '12px',
-              borderRadius: '8px'
-            }
+            className: 'toast-error'
           });
         } else if (toastIdRef.current) {
           console.log('No other users editing, dismissing notification');
@@ -292,7 +286,11 @@ export default function UserForm({
                       姓名 <span className="text-red-500">*</span>
                     </FormLabel>
                     <FormControl>
-                      <Input placeholder="請輸入姓名 (2-10 字元)" {...field} />
+                      <Input
+                        className="form-element"
+                        placeholder="請輸入姓名 (2-10 字元)"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -308,6 +306,7 @@ export default function UserForm({
                     </FormLabel>
                     <FormControl>
                       <Input
+                        className="form-element"
                         placeholder="請輸入電子郵件"
                         type="email"
                         {...field}
@@ -323,7 +322,7 @@ export default function UserForm({
               control={form.control}
               name="isActive"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border p-4">
+                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-[#cbd5e1] p-4">
                   <div className="space-y-0.5">
                     <FormLabel className="text-base">帳號狀態</FormLabel>
                     <FormDescription>
@@ -356,7 +355,7 @@ export default function UserForm({
                   <FormControl>
                     <Textarea
                       placeholder="請輸入描述 (5-200 字元)"
-                      className="resize-none"
+                      className="form-element min-h-[120px]"
                       {...field}
                     />
                   </FormControl>
