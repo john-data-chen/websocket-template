@@ -24,3 +24,6 @@ dist-ssr
 *.sw?
 
 .windsurfrules
+
+# test reports
+coverage
