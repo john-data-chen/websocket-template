@@ -81,12 +81,12 @@ export function UsernameDialog({
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
-      <DialogContent className="sm:max-w-[425px] p-6 rounded-2xl">
+      <DialogContent className="sm:max-w-[425px] p-6 rounded-2xl w-full max-w-[90vw]">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <DialogHeader>
-              <DialogTitle>歡迎使用</DialogTitle>
-              <DialogDescription>
+              <DialogTitle className="text-lg sm:text-xl">歡迎使用</DialogTitle>
+              <DialogDescription className="text-sm sm:text-base">
                 請輸入您的名字以繼續使用系統
               </DialogDescription>
             </DialogHeader>
@@ -96,21 +96,24 @@ export function UsernameDialog({
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>名字</FormLabel>
+                  <FormLabel className="text-sm sm:text-base">名字</FormLabel>
                   <FormControl>
                     <Input
                       placeholder="請輸入您的名字"
                       autoComplete="off"
                       {...field}
+                      className="form-element"
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage className="text-xs sm:text-sm" />
                 </FormItem>
               )}
             />
 
             <DialogFooter>
-              <Button type="submit">確認</Button>
+              <Button type="submit" className="w-full sm:w-auto">
+                確認
+              </Button>
             </DialogFooter>
           </form>
         </Form>
