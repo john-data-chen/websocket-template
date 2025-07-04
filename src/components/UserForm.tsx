@@ -19,6 +19,7 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { WEBSOCKET_URL } from '@/constants/websocket';
+import { useIsMobileScreen } from '@/hooks/useIsMobileScreen';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { descriptionSchema, emailSchema, nameSchema } from '@/lib/validation';
 import { useSessionStore } from '@/stores/useSessionStore';
@@ -52,17 +53,6 @@ interface UserFormProps {
   onSubmit: (data: UserFormValues) => void;
 }
 
-function useIsMobile() {
-  const [isMobile, setIsMobile] = useState(false);
-  useEffect(() => {
-    const check = () => setIsMobile(window.innerWidth < 640);
-    check();
-    window.addEventListener('resize', check);
-    return () => window.removeEventListener('resize', check);
-  }, []);
-  return isMobile;
-}
-
 export default function UserForm({
   open,
   onOpenChange,
@@ -72,7 +62,7 @@ export default function UserForm({
   const { username } = useSessionStore();
   const [, setEditingUsers] = useState<string[]>([]);
   const toastIdRef = useRef<string | number | null>(null);
-  const isMobile = useIsMobile();
+  const isMobile = useIsMobileScreen();
 
   const handleWebSocketMessage = useCallback(
     (message: WebSocketMessage) => {
