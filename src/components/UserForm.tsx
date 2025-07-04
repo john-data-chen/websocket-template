@@ -52,6 +52,17 @@ interface UserFormProps {
   onSubmit: (data: UserFormValues) => void;
 }
 
+function useIsMobile() {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 640);
+    check();
+    window.addEventListener('resize', check);
+    return () => window.removeEventListener('resize', check);
+  }, []);
+  return isMobile;
+}
+
 export default function UserForm({
   open,
   onOpenChange,
@@ -61,6 +72,7 @@ export default function UserForm({
   const { username } = useSessionStore();
   const [, setEditingUsers] = useState<string[]>([]);
   const toastIdRef = useRef<string | number | null>(null);
+  const isMobile = useIsMobile();
 
   const handleWebSocketMessage = useCallback(
     (message: WebSocketMessage) => {
@@ -283,7 +295,9 @@ export default function UserForm({
                     <FormControl>
                       <Input
                         className="form-element"
-                        placeholder="請輸入姓名 (2-10 字元)"
+                        placeholder={
+                          isMobile ? '2-10 字元' : '請輸入姓名 (2-10 字元)'
+                        }
                         {...field}
                       />
                     </FormControl>
@@ -302,7 +316,7 @@ export default function UserForm({
                     <FormControl>
                       <Input
                         className="form-element"
-                        placeholder="請輸入電子郵件"
+                        placeholder={isMobile ? '電子郵件' : '請輸入電子郵件'}
                         type="email"
                         {...field}
                       />
