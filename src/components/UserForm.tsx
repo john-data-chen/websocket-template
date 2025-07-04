@@ -23,14 +23,21 @@ import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
 const formSchema = z.object({
-  name: z.string().min(2, {
-    message: '姓名至少需要 2 個字元'
-  }),
-  email: z.string().email({
-    message: '請輸入有效的電子郵件地址'
-  }),
+  name: z
+    .string()
+    .min(2, { message: '姓名至少需要 2 個字元' })
+    .max(10, { message: '姓名最多 10 個字元' }),
+  email: z
+    .string()
+    .min(1, { message: '請輸入電子郵件' })
+    .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, {
+      message: '請輸入有效的電子郵件地址'
+    }),
   isActive: z.boolean().default(true),
-  description: z.string().default('')
+  description: z
+    .string()
+    .min(5, { message: '描述至少需要 5 個字元' })
+    .max(200, { message: '描述最多 200 個字元' })
 });
 
 type UserFormValues = {
@@ -87,9 +94,11 @@ export default function UserForm({
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>姓名</FormLabel>
+                    <FormLabel>
+                      姓名 <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
-                      <Input placeholder="請輸入姓名" {...field} />
+                      <Input placeholder="請輸入姓名 (2-10 字元)" {...field} />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -100,7 +109,9 @@ export default function UserForm({
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>電子郵件</FormLabel>
+                    <FormLabel>
+                      電子郵件 <span className="text-red-500">*</span>
+                    </FormLabel>
                     <FormControl>
                       <Input
                         placeholder="請輸入電子郵件"
@@ -126,10 +137,15 @@ export default function UserForm({
                     </FormDescription>
                   </div>
                   <FormControl>
-                    <Switch
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+                    <div className="flex items-center space-x-2">
+                      <span className="text-sm text-muted-foreground">
+                        {field.value ? '啟用' : '停用'}
+                      </span>
+                      <Switch
+                        checked={field.value}
+                        onCheckedChange={field.onChange}
+                      />
+                    </div>
                   </FormControl>
                 </FormItem>
               )}
@@ -140,10 +156,12 @@ export default function UserForm({
               name="description"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>描述</FormLabel>
+                  <FormLabel>
+                    描述 <span className="text-red-500">*</span>
+                  </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="請輸入描述"
+                      placeholder="請輸入描述 (5-200 字元)"
                       className="resize-none"
                       {...field}
                     />
@@ -161,7 +179,14 @@ export default function UserForm({
               >
                 取消
               </Button>
-              <Button type="submit">{user ? '更新' : '新增'}</Button>
+              <Button
+                type="submit"
+                disabled={
+                  !form.formState.isValid || form.formState.isSubmitting
+                }
+              >
+                {user ? '更新' : '新增'}
+              </Button>
             </div>
           </form>
         </Form>
