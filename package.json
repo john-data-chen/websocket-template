@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "format": "prettier --write .",
     "prepare": "husky",
-    "lint-staged": "lint-staged"
+    "lint-staged": "lint-staged",
+    "test": "vitest",
+    "test:watch": "vitest watch"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -62,6 +64,7 @@
     "tw-animate-css": "^1.3.5",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.35.1",
-    "vite": "^7.0.1"
+    "vite": "^7.0.2",
+    "vitest": "^3.2.4"
   }
 }
