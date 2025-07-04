@@ -11,7 +11,7 @@
     "format": "prettier --write .",
     "prepare": "husky",
     "lint-staged": "lint-staged",
-    "test": "vitest",
+    "test": "vitest run --coverage",
     "test:watch": "vitest watch"
   },
   "lint-staged": {
@@ -19,8 +19,11 @@
       "eslint --fix"
     ],
     "*.{js,jsx,ts,tsx,css,md,mdx,html,json,scss,less,css,ts,tsx}": [
-      "prettier --write"
+      "prettier --write --no-error-on-unmatched-pattern"
     ]
+  },
+  "engines": {
+    "node": "==22.x"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.1.1",
@@ -55,6 +58,7 @@
     "@types/react": "^19.1.8",
     "@types/react-dom": "^19.1.6",
     "@vitejs/plugin-react-swc": "^3.10.2",
+    "@vitest/coverage-v8": "3.2.4",
     "eslint": "^9.30.1",
     "eslint-plugin-react-hooks": "^5.2.0",
     "eslint-plugin-react-refresh": "^0.4.20",
