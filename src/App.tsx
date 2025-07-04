@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import { toast, Toaster } from 'sonner';
 import { Button } from './components/ui/button';
 import { UsernameDialog } from './components/UsernameDialog';
@@ -10,57 +10,132 @@ function App() {
   const { username, clearSession } = useSessionStore();
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   const [wsConnected, setWsConnected] = useState(false);
+  const errorShownRef = useRef<boolean>(false);
+  const reconnectAttempts = useRef<number>(0);
+  const reconnectTimer = useRef<NodeJS.Timeout | null>(null);
+  const ws = useRef<WebSocket | null>(null);
+  const pingInterval = useRef<NodeJS.Timeout | null>(null);
+  const isMounted = useRef<boolean>(true);
 
-  const errorShownRef = useRef(false);
+  const MAX_RECONNECT_ATTEMPTS = 5;
+  const RECONNECT_DELAY = 3000; // 3 seconds base delay
 
-  // Monitor WebSocket connection status
-  useEffect(() => {
-    const checkConnection = () => {
-      try {
-        const ws = new WebSocket(WEBSOCKET_URL);
+  const showConnectionError = useCallback(() => {
+    if (!isMounted.current || errorShownRef.current) return;
 
-        ws.onopen = () => {
-          setWsConnected(true);
-          errorShownRef.current = false; // Reset error state on successful connection
-          ws.close();
-        };
+    errorShownRef.current = true;
+    toast.error('無法連接到即時協作伺服器', {
+      description: '部分即時協作功能可能無法正常運作',
+      duration: 5000,
+      id: 'websocket-error'
+    });
+  }, []);
 
-        ws.onerror = (error) => {
-          console.error('WebSocket connection error:', error);
-          setWsConnected(false);
+  const setupWebSocket = useCallback(() => {
+    if (!isMounted.current) return;
 
-          // Only show error toast if we haven't shown it yet
-          if (!errorShownRef.current) {
-            errorShownRef.current = true;
-            toast.error('無法連接到即時協作伺服器', {
-              description: '部分即時協作功能可能無法正常運作',
-              duration: 5000
-            });
-          }
-        };
+    // Clean up previous connection if exists
+    if (ws.current) {
+      ws.current.onopen = null;
+      ws.current.onerror = null;
+      ws.current.onclose = null;
+      ws.current.close();
+      ws.current = null;
+    }
 
-        // Set up connection check interval
-        const timer = setInterval(() => {
-          if (ws.readyState === WebSocket.OPEN) {
-            ws.close();
-          } else if (ws.readyState === WebSocket.CLOSED) {
-            checkConnection();
-          }
-        }, 30000);
+    try {
+      ws.current = new WebSocket(WEBSOCKET_URL);
 
-        return () => clearInterval(timer);
-      } catch (error) {
-        console.error('Error initializing WebSocket:', error);
+      ws.current.onopen = () => {
+        if (!isMounted.current) return;
+        console.log('WebSocket connected');
+        setWsConnected(true);
+        reconnectAttempts.current = 0;
+        errorShownRef.current = false;
+        if (reconnectTimer.current) {
+          clearTimeout(reconnectTimer.current);
+          reconnectTimer.current = null;
+        }
+        toast.dismiss('websocket-error');
+      };
+
+      ws.current.onerror = () => {
+        if (!isMounted.current) return;
+        console.error('WebSocket connection error');
         setWsConnected(false);
+        showConnectionError();
+      };
+
+      ws.current.onclose = () => {
+        if (!isMounted.current) return;
+        console.log('WebSocket disconnected');
+        setWsConnected(false);
+
+        if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
+          const delay = Math.min(
+            RECONNECT_DELAY * Math.pow(2, reconnectAttempts.current),
+            30000 // Max 30 seconds
+          );
+
+          reconnectTimer.current = setTimeout(() => {
+            if (isMounted.current) {
+              reconnectAttempts.current++;
+              setupWebSocket();
+            }
+          }, delay);
+        } else {
+          showConnectionError();
+        }
+      };
+    } catch (error) {
+      console.error('WebSocket initialization error:', error);
+      setWsConnected(false);
+      showConnectionError();
+    }
+  }, [showConnectionError]);
+
+  // Set up ping interval when connected
+  useEffect(() => {
+    if (!wsConnected) return;
+
+    pingInterval.current = setInterval(() => {
+      if (ws.current?.readyState === WebSocket.OPEN) {
+        ws.current.send(JSON.stringify({ type: 'ping' }));
+      }
+    }, 30000);
+
+    return () => {
+      if (pingInterval.current) {
+        clearInterval(pingInterval.current);
       }
     };
+  }, [wsConnected]);
 
-    checkConnection();
-  }, []);
+  // Initial WebSocket setup
+  useEffect(() => {
+    isMounted.current = true;
+    setupWebSocket();
+
+    return () => {
+      isMounted.current = false;
+      if (ws.current) {
+        ws.current.close();
+        ws.current = null;
+      }
+      if (reconnectTimer.current) {
+        clearTimeout(reconnectTimer.current);
+        reconnectTimer.current = null;
+      }
+      if (pingInterval.current) {
+        clearInterval(pingInterval.current);
+        pingInterval.current = null;
+      }
+    };
+  }, [setupWebSocket]);
 
   return (
     <>
-      <Toaster position="top-right" richColors />
+      <Toaster position="bottom-right" richColors />
       <div className="min-h-screen bg-gray-50">
         <header className="bg-white shadow-sm">
           <div className="container mx-auto px-4 py-4 flex justify-between items-center">
