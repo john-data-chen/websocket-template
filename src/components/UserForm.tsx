@@ -19,7 +19,8 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import type { User } from '@/types/user';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useEffect } from 'react';
+import debounce from 'lodash.debounce';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -68,43 +69,98 @@ export default function UserForm({
     description: ''
   };
 
+  // 生成草稿的鍵名
+  const draftKey = useMemo(
+    () => (user ? `user_draft_${user.id}` : 'user_draft_new'),
+    [user]
+  );
+
   const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues: user
-      ? {
-          name: user.name,
-          email: user.email,
-          isActive: user.isActive,
-          description: user.description
-        }
-      : defaultValues
+    defaultValues: defaultValues
   });
 
-  // 當表單開啟時，重置表單
+  // 儲存草稿到 localStorage
+  const saveDraft = useCallback(
+    (data: UserFormValues) => {
+      try {
+        localStorage.setItem(draftKey, JSON.stringify(data));
+      } catch (error) {
+        console.error('儲存草稿失敗:', error);
+      }
+    },
+    [draftKey]
+  );
+
+  // 從 localStorage 載入草稿
+  const loadDraft = useCallback(() => {
+    try {
+      const draft = localStorage.getItem(draftKey);
+      return draft ? JSON.parse(draft) : null;
+    } catch (error) {
+      console.error('載入草稿失敗:', error);
+      return null;
+    }
+  }, [draftKey]);
+
+  // 清除草稿
+  const clearDraft = useCallback(() => {
+    try {
+      localStorage.removeItem(draftKey);
+    } catch (error) {
+      console.error('清除草稿失敗:', error);
+    }
+  }, [draftKey]);
+
+  // 防抖的保存函數
+  const debouncedSaveDraft = useMemo(
+    () =>
+      debounce((data: UserFormValues) => {
+        saveDraft(data);
+      }, 3000),
+    [saveDraft]
+  );
+
+  // 監聽表單變化，自動保存草稿
+  useEffect(() => {
+    const subscription = form.watch((value) => {
+      debouncedSaveDraft(value as UserFormValues);
+    });
+    return () => {
+      subscription.unsubscribe();
+      debouncedSaveDraft.cancel();
+    };
+  }, [form, debouncedSaveDraft]);
+
+  // 當表單開啟時，重置表單並載入草稿
   useEffect(() => {
     if (open) {
-      if (!user) {
-        form.reset({
-          name: '',
-          email: '',
-          isActive: true,
-          description: ''
-        });
-      } else {
+      const draft = loadDraft();
+
+      if (draft) {
+        // 如果有草稿，優先使用草稿
+        form.reset(draft);
+      } else if (user) {
+        // 沒有草稿但有使用者資料，使用使用者資料
         form.reset({
           name: user.name,
           email: user.email,
           isActive: user.isActive,
           description: user.description
         });
+      } else {
+        // 新增使用者，使用預設值
+        form.reset(defaultValues);
       }
     }
-  }, [open, user, form]);
+  }, [open, user, form, loadDraft]);
 
   const handleSubmit = (data: UserFormValues) => {
+    // 提交表單前清除草稿
+    clearDraft();
     onSubmit(data);
     if (!user) {
-      form.reset();
+      form.reset(defaultValues);
     }
   };
 
