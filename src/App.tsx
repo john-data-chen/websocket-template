@@ -10,6 +10,15 @@ function App() {
   const { username, clearSession } = useSessionStore();
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   const [wsConnected, setWsConnected] = useState(false);
+  const initialCheckDone = useRef(false);
+
+  // check if user is logged in, if not, open login dialog
+  useEffect(() => {
+    if (!initialCheckDone.current) {
+      setIsLoginDialogOpen(!username);
+      initialCheckDone.current = true;
+    }
+  }, [username]);
   const errorShownRef = useRef<boolean>(false);
   const reconnectAttempts = useRef<number>(0);
   const reconnectTimer = useRef<NodeJS.Timeout | null>(null);
