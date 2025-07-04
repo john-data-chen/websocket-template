@@ -14,3 +14,5 @@ export const USER_LIST = [
     description: '⼀位熱愛後端開發的資深軟體⼯程師。'
   }
 ];
+
+export const TEST_USER = 'Mark.S';

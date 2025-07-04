@@ -13,7 +13,7 @@
     "lint-staged": "lint-staged",
     "test": "vitest run --coverage",
     "test:watch": "vitest watch",
-    "playwright": "pnpm run playwright test"
+    "playwright": "npx playwright test"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
