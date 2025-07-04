@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast, Toaster } from 'sonner';
 import { Button } from './components/ui/button';
 import { UsernameDialog } from './components/UsernameDialog';
@@ -11,6 +11,8 @@ function App() {
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   const [wsConnected, setWsConnected] = useState(false);
 
+  const errorShownRef = useRef(false);
+
   // Monitor WebSocket connection status
   useEffect(() => {
     const checkConnection = () => {
@@ -19,16 +21,22 @@ function App() {
 
         ws.onopen = () => {
           setWsConnected(true);
+          errorShownRef.current = false; // Reset error state on successful connection
           ws.close();
         };
 
         ws.onerror = (error) => {
           console.error('WebSocket connection error:', error);
           setWsConnected(false);
-          toast.error('無法連接到即時協作伺服器', {
-            description: '部分即時協作功能可能無法正常運作',
-            duration: 5000
-          });
+
+          // Only show error toast if we haven't shown it yet
+          if (!errorShownRef.current) {
+            errorShownRef.current = true;
+            toast.error('無法連接到即時協作伺服器', {
+              description: '部分即時協作功能可能無法正常運作',
+              duration: 5000
+            });
+          }
         };
 
         // Set up connection check interval
