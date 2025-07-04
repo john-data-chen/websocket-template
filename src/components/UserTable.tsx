@@ -18,7 +18,7 @@ import {
   TableHeader,
   TableRow
 } from '@/components/ui/table';
-import { userList as mockUsers } from '@/constants/mockData';
+import { USER_LIST as mockUsers } from '@/constants/mockData';
 import type { User } from '@/types/user';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
