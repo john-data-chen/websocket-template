@@ -18,10 +18,11 @@ import {
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
-import { WEBSOCKET_URL, type WebSocketMessage } from '@/constants/websocket';
+import { WEBSOCKET_URL } from '@/constants/websocket';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import { useSessionStore } from '@/stores/useSessionStore';
 import type { User } from '@/types/user';
+import type { WebSocketMessage } from '@/types/websocket';
 import { zodResolver } from '@hookform/resolvers/zod';
 import debounce from 'lodash.debounce';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
