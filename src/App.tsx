@@ -146,52 +146,60 @@ function App() {
     <>
       <Toaster position="bottom-right" richColors />
       <div className="min-h-screen bg-gray-50">
-        <header className="bg-white shadow-sm">
-          <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-            <div className="flex items-center space-x-4">
-              <h1 className="text-xl font-semibold text-gray-900">
-                用戶管理系統
-              </h1>
-              <div className="flex items-center">
-                <span
-                  className={`h-3 w-3 rounded-full ${wsConnected ? 'bg-green-500' : 'bg-red-500'} mr-2`}
-                ></span>
-                <span className="text-sm text-gray-500">
-                  {wsConnected ? '已連接' : '離線'}
-                </span>
+        <header className="bg-white shadow-sm sticky top-0 z-10">
+          <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
+              <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
+                <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
+                  用戶管理系統
+                </h1>
+                <div className="flex items-center">
+                  <span
+                    className={`h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full ${wsConnected ? 'bg-green-500' : 'bg-red-500'} mr-1.5 sm:mr-2`}
+                    aria-hidden="true"
+                  />
+                  <span className="text-xs sm:text-sm text-gray-500">
+                    {wsConnected ? '已連接' : '離線'}
+                  </span>
+                </div>
               </div>
-            </div>
-            <div className="flex items-center gap-4">
               {username && (
-                <>
-                  <span className="text-sm bg-blue-100 text-blue-800 px-3 py-1 rounded-full">
+                <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto justify-between sm:justify-end">
+                  <span className="text-xs sm:text-sm bg-blue-50 text-blue-700 px-2 sm:px-3 py-1 rounded-full truncate max-w-[180px] sm:max-w-none">
                     歡迎, {username}!
                   </span>
                   <button
                     onClick={clearSession}
-                    className="text-sm text-gray-600 hover:text-gray-900"
+                    className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 px-2 py-1 hover:bg-blue-50 rounded transition-colors"
+                    aria-label="登出"
                   >
                     登出
                   </button>
-                </>
+                </div>
               )}
             </div>
           </div>
         </header>
-
-        <main className="container mx-auto px-4 py-8">
+        <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
           {username ? (
-            <UserTable />
+            <div className="overflow-x-auto">
+              <UserTable />
+            </div>
           ) : (
-            <div className="flex flex-col justify-center items-center min-h-[60vh]">
-              <div className="text-center">
-                <h2 className="text-2xl font-semibold text-gray-800 mb-4">
+            <div className="flex flex-col justify-center items-center min-h-[calc(100vh-180px)] sm:min-h-[60vh] p-4">
+              <div className="text-center max-w-md w-full">
+                <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-3 sm:mb-4">
                   請先登入
                 </h2>
-                <p className="text-gray-600">您需要登入才能使用此系統</p>
-              </div>
-              <div className="flex justify-center mt-6">
-                <Button onClick={() => setIsLoginDialogOpen(true)}>登入</Button>
+                <p className="text-sm sm:text-base text-gray-600 mb-6">
+                  您需要登入才能使用此系統
+                </p>
+                <Button
+                  onClick={() => setIsLoginDialogOpen(true)}
+                  className="w-full sm:w-auto px-6 py-2"
+                >
+                  登入
+                </Button>
               </div>
             </div>
           )}
