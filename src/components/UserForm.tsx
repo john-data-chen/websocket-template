@@ -20,6 +20,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { WEBSOCKET_URL } from '@/constants/websocket';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { descriptionSchema, emailSchema, nameSchema } from '@/lib/validation';
 import { useSessionStore } from '@/stores/useSessionStore';
 import type { User } from '@/types/user';
 import type { WebSocketMessage } from '@/types/websocket';
@@ -31,21 +32,10 @@ import { toast } from 'sonner';
 import * as z from 'zod';
 
 const formSchema = z.object({
-  name: z
-    .string()
-    .min(2, { message: '姓名至少需要 2 個字元' })
-    .max(10, { message: '姓名最多 10 個字元' }),
-  email: z
-    .string()
-    .min(1, { message: '請輸入電子郵件' })
-    .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, {
-      message: '請輸入有效的電子郵件地址'
-    }),
+  name: nameSchema,
+  email: emailSchema,
   isActive: z.boolean().default(true),
-  description: z
-    .string()
-    .min(5, { message: '描述至少需要 5 個字元' })
-    .max(200, { message: '描述最多 200 個字元' })
+  description: descriptionSchema
 });
 
 type UserFormValues = {

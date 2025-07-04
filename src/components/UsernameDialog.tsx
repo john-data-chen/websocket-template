@@ -1,7 +1,11 @@
 'use client';
 
+import { usernameSchema } from '@/lib/validation';
 import { useSessionStore } from '@/stores/useSessionStore';
+import { zodResolver } from '@hookform/resolvers/zod';
 import { useCallback, useEffect, useState } from 'react';
+import { useForm } from 'react-hook-form';
+import * as z from 'zod';
 import { Button } from './ui/button';
 import {
   Dialog,
@@ -11,7 +15,21 @@ import {
   DialogHeader,
   DialogTitle
 } from './ui/dialog';
-import { Label } from './ui/label';
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage
+} from './ui/form';
+import { Input } from './ui/input';
+
+const formSchema = z.object({
+  username: usernameSchema
+});
+
+type FormValues = z.infer<typeof formSchema>;
 
 interface UsernameDialogProps {
   open?: boolean;
@@ -24,18 +42,17 @@ export function UsernameDialog({
   onOpenChange,
   onUsernameSet
 }: UsernameDialogProps) {
-  const [inputValue, setInputValue] = useState('');
-  const [error, setError] = useState('');
   const { username, setUsername } = useSessionStore();
-
-  // If it's controlled mode, use the external open state
-  const isControlled = controlledOpen !== undefined;
-
-  // If it's non-controlled mode, use internal state
+  const [isControlled] = useState(controlledOpen !== undefined);
   const [internalOpen, setInternalOpen] = useState(false);
-
-  // Merge controlled and non-controlled open states
   const isOpen = isControlled ? controlledOpen : internalOpen;
+
+  const form = useForm<FormValues>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      username: ''
+    }
+  });
 
   const handleOpenChange = useCallback(
     (open: boolean) => {
@@ -48,7 +65,6 @@ export function UsernameDialog({
   );
 
   useEffect(() => {
-    // If there is no username, show the dialog (only in non-controlled mode)
     if (!isControlled && !username) {
       handleOpenChange(true);
     } else if (username && onUsernameSet) {
@@ -56,66 +72,48 @@ export function UsernameDialog({
     }
   }, [username, onUsernameSet, isControlled, handleOpenChange]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!inputValue.trim()) {
-      setError('請輸入您的名字');
-      return;
-    }
-
-    // Use zustand to set username
-    setUsername(inputValue);
+  const onSubmit = (values: FormValues) => {
+    const trimmedUsername = values.username.trim();
+    setUsername(trimmedUsername);
     handleOpenChange(false);
-    setError('');
-
-    if (onUsernameSet) {
-      onUsernameSet(inputValue);
-    }
+    onUsernameSet?.(trimmedUsername);
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={handleOpenChange}>
       <DialogContent className="sm:max-w-[425px] p-6 rounded-2xl">
-        <form onSubmit={handleSubmit}>
-          <DialogHeader>
-            <DialogTitle>歡迎使用</DialogTitle>
-            <DialogDescription>請輸入您的名字以繼續使用系統</DialogDescription>
-          </DialogHeader>
-          <div className="grid gap-4 py-4">
-            <div className="grid grid-cols-4 items-center gap-4">
-              <Label
-                htmlFor="username"
-                className="text-right font-medium text-gray-800"
-              >
-                名字
-              </Label>
-              <div className="col-span-3">
-                <div className="relative">
-                  <input
-                    id="username"
-                    value={inputValue}
-                    onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-                      setInputValue(e.target.value);
-                      if (error) setError('');
-                    }}
-                    className={`w-full px-4 py-2 text-base font-medium text-gray-800 bg-white border-[1.5px] ${error ? 'border-red-500' : 'border-slate-300'} rounded-input focus:outline-none focus:border-blue-500 focus:shadow-[0_0_6px_2px_rgba(59,130,246,0.4)] disabled:bg-slate-100 disabled:text-slate-400 disabled:border-slate-200 disabled:cursor-not-allowed transition-all duration-200 ease-in-out`}
-                    placeholder="請輸入您的名字"
-                    autoComplete="off"
-                  />
-                </div>
-                {error && <p className="text-sm text-red-500 mt-1">{error}</p>}
-              </div>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button
-              type="submit"
-              className="bg-blue-500 hover:bg-blue-600 text-white font-medium px-4 py-2 rounded-input transition-colors duration-200"
-            >
-              確認
-            </Button>
-          </DialogFooter>
-        </form>
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <DialogHeader>
+              <DialogTitle>歡迎使用</DialogTitle>
+              <DialogDescription>
+                請輸入您的名字以繼續使用系統
+              </DialogDescription>
+            </DialogHeader>
+
+            <FormField
+              control={form.control}
+              name="username"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>名字</FormLabel>
+                  <FormControl>
+                    <Input
+                      placeholder="請輸入您的名字"
+                      autoComplete="off"
+                      {...field}
+                    />
+                  </FormControl>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+
+            <DialogFooter>
+              <Button type="submit">確認</Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
