@@ -85,7 +85,7 @@ export default function UserForm({
 
         setEditingUsers(otherUsers);
 
-        // 顯示或更新 Toast 通知
+        // Show or update Toast notification
         if (otherUsers.length > 0) {
           const notificationMessage = `正在編輯的使⽤者：${otherUsers.join(', ')}`;
           console.log('Showing notification:', notificationMessage);
@@ -123,7 +123,7 @@ export default function UserForm({
     []
   );
 
-  // 生成草稿的鍵名
+  // Generate draft key
   const draftKey = useMemo(
     () => (user ? `user_draft_${user.id}` : 'user_draft_new'),
     [user]
@@ -134,39 +134,39 @@ export default function UserForm({
     defaultValues: defaultValues
   });
 
-  // 儲存草稿到 localStorage
+  // Save draft to localStorage
   const saveDraft = useCallback(
     (data: UserFormValues) => {
       try {
         localStorage.setItem(draftKey, JSON.stringify(data));
       } catch (error) {
-        console.error('儲存草稿失敗:', error);
+        console.error('Failed to save draft:', error);
       }
     },
     [draftKey]
   );
 
-  // 從 localStorage 載入草稿
+  // Load draft from localStorage
   const loadDraft = useCallback(() => {
     try {
       const draft = localStorage.getItem(draftKey);
       return draft ? JSON.parse(draft) : null;
     } catch (error) {
-      console.error('載入草稿失敗:', error);
+      console.error('Failed to load draft:', error);
       return null;
     }
   }, [draftKey]);
 
-  // 清除草稿
+  // Clear draft
   const clearDraft = useCallback(() => {
     try {
       localStorage.removeItem(draftKey);
     } catch (error) {
-      console.error('清除草稿失敗:', error);
+      console.error('Failed to clear draft:', error);
     }
   }, [draftKey]);
 
-  // 防抖的保存函數
+  // Debounced save function
   const debouncedSaveDraft = useMemo(
     () =>
       debounce((data: UserFormValues) => {
@@ -175,7 +175,7 @@ export default function UserForm({
     [saveDraft]
   );
 
-  // 監聽表單變化，自動保存草稿
+  // Listen to form changes and automatically save draft
   useEffect(() => {
     const subscription = form.watch((value) => {
       debouncedSaveDraft(value as UserFormValues);
@@ -186,12 +186,12 @@ export default function UserForm({
     };
   }, [form, debouncedSaveDraft]);
 
-  // 當表單開啟/關閉時，發送相應的 WebSocket 消息
+  // When the form opens/closes, send corresponding WebSocket messages
   useEffect(() => {
     if (!user?.id) return;
 
     if (open) {
-      // 發送開始編輯消息
+      // Send start editing message
       sendMessage({
         type: 'start_editing',
         payload: {
@@ -200,7 +200,7 @@ export default function UserForm({
         }
       });
     } else {
-      // 發送停止編輯消息
+      // Send stop editing message
       sendMessage({
         type: 'stop_editing',
         payload: {
@@ -209,10 +209,10 @@ export default function UserForm({
         }
       });
 
-      // 清除編輯者列表
+      // Clear editing users list
       setEditingUsers([]);
 
-      // 關閉 Toast 通知
+      // Close Toast notification
       if (toastIdRef.current) {
         toast.dismiss(toastIdRef.current);
         toastIdRef.current = null;
@@ -220,7 +220,7 @@ export default function UserForm({
     }
 
     return () => {
-      // 組件卸載時發送停止編輯消息
+      // Send stop editing message when component unmounts
       if (user?.id) {
         sendMessage({
           type: 'stop_editing',
@@ -233,16 +233,16 @@ export default function UserForm({
     };
   }, [open, user?.id, username, sendMessage]);
 
-  // 當表單開啟時，重置表單並載入草稿
+  // When the form opens, reset the form and load the draft
   useEffect(() => {
     if (open) {
       const draft = loadDraft();
 
       if (draft) {
-        // 如果有草稿，優先使用草稿
+        // If there is a draft, use it first
         form.reset(draft);
       } else if (user) {
-        // 沒有草稿但有使用者資料，使用使用者資料
+        // If there is no draft but there is user data, use user data
         form.reset({
           name: user.name,
           email: user.email,
@@ -250,14 +250,14 @@ export default function UserForm({
           description: user.description
         });
       } else {
-        // 新增使用者，使用預設值
+        // If there is no user data, use default values
         form.reset(defaultValues);
       }
     }
   }, [open, user, form, loadDraft, defaultValues]);
 
   const handleSubmit = (data: UserFormValues) => {
-    // 提交表單前清除草稿
+    // Clear draft before submitting the form
     clearDraft();
     onSubmit(data);
     if (!user) {

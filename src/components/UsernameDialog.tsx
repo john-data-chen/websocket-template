@@ -28,13 +28,13 @@ export function UsernameDialog({
   const [error, setError] = useState('');
   const { username, setUsername } = useSessionStore();
 
-  // 決定是否使用受控或非受控狀態
+  // If it's controlled mode, use the external open state
   const isControlled = controlledOpen !== undefined;
 
-  // 如果是非受控模式，使用內部狀態
+  // If it's non-controlled mode, use internal state
   const [internalOpen, setInternalOpen] = useState(false);
 
-  // 合併受控和非受控的開啟狀態
+  // Merge controlled and non-controlled open states
   const isOpen = isControlled ? controlledOpen : internalOpen;
 
   const handleOpenChange = useCallback(
@@ -48,7 +48,7 @@ export function UsernameDialog({
   );
 
   useEffect(() => {
-    // 如果沒有用戶名，則顯示對話框（僅在非受控模式下）
+    // If there is no username, show the dialog (only in non-controlled mode)
     if (!isControlled && !username) {
       handleOpenChange(true);
     } else if (username && onUsernameSet) {
@@ -63,7 +63,7 @@ export function UsernameDialog({
       return;
     }
 
-    // 使用 zustand 設置用戶名
+    // Use zustand to set username
     setUsername(inputValue);
     handleOpenChange(false);
     setError('');
