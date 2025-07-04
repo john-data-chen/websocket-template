@@ -1,4 +1,4 @@
-export const userList = [
+export const USER_LIST = [
   {
     id: 1,
     name: '陳⼤⽂',
