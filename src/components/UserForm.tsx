@@ -19,6 +19,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import type { User } from '@/types/user';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 
@@ -60,15 +61,45 @@ export default function UserForm({
   user,
   onSubmit
 }: UserFormProps) {
+  const defaultValues = {
+    name: '',
+    email: '',
+    isActive: true,
+    description: ''
+  };
+
   const form = useForm({
     resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: user?.name ?? '',
-      email: user?.email ?? '',
-      isActive: user?.isActive ?? true,
-      description: user?.description ?? ''
-    }
+    defaultValues: user
+      ? {
+          name: user.name,
+          email: user.email,
+          isActive: user.isActive,
+          description: user.description
+        }
+      : defaultValues
   });
+
+  // 當表單開啟時，重置表單
+  useEffect(() => {
+    if (open) {
+      if (!user) {
+        form.reset({
+          name: '',
+          email: '',
+          isActive: true,
+          description: ''
+        });
+      } else {
+        form.reset({
+          name: user.name,
+          email: user.email,
+          isActive: user.isActive,
+          description: user.description
+        });
+      }
+    }
+  }, [open, user, form]);
 
   const handleSubmit = (data: UserFormValues) => {
     onSubmit(data);
