@@ -7,7 +7,11 @@ export default defineConfig({
   test: {
     environment: 'jsdom',
     exclude: ['**/node_modules/**', '__tests__/e2e/**'],
-    globals: true, // Ensure Vitest global APIs are enabled,
+    globals: true,
+    setupFiles: ['./vitest.setup.ts'],
+    typecheck: {
+      tsconfig: './tsconfig.test.json'
+    },
     coverage: {
       reporter: ['text', 'json', 'html', 'lcov'],
       include: ['src/**/*.{ts,tsx}'],
@@ -19,9 +23,8 @@ export default defineConfig({
     }
   },
   resolve: {
-    // Add the resolve configuration
     alias: {
-      '@': path.resolve(__dirname, './src') // Map '@' to the 'src' directory
+      '@': path.resolve(__dirname, './src')
     }
   }
 });
