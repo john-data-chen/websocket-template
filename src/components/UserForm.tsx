@@ -18,6 +18,7 @@ import {
 import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
+import { FORM_TEXTS } from '@/constants/formTexts';
 import { WEBSOCKET_URL, type WebSocketMessage } from '@/constants/websocket';
 import { useIsMobileScreen } from '@/hooks/useIsMobileScreen';
 import { useWebSocket } from '@/hooks/useWebSocket';
@@ -83,7 +84,7 @@ export default function UserForm({
 
         // Show or update Toast notification
         if (otherUsers.length > 0) {
-          const notificationMessage = `正在編輯的使⽤者：${otherUsers.join(', ')}`;
+          const notificationMessage = `${FORM_TEXTS.NOTIFICATIONS.EDITING_USERS}${otherUsers.join(', ')}`;
           console.log('Showing notification:', notificationMessage);
 
           if (toastIdRef.current) {
@@ -192,7 +193,7 @@ export default function UserForm({
         type: 'start_editing',
         payload: {
           recordId: user.id,
-          userName: currentUser?.name ?? 'anonymous'
+          userName: currentUser?.name ?? FORM_TEXTS.DEFAULTS.ANONYMOUS
         }
       });
     } else {
@@ -201,7 +202,7 @@ export default function UserForm({
         type: 'stop_editing',
         payload: {
           recordId: user.id,
-          userName: currentUser?.name ?? 'anonymous'
+          userName: currentUser?.name ?? FORM_TEXTS.DEFAULTS.ANONYMOUS
         }
       });
 
@@ -222,7 +223,7 @@ export default function UserForm({
           type: 'stop_editing',
           payload: {
             recordId: user.id,
-            userName: currentUser?.name ?? 'anonymous'
+            userName: currentUser?.name ?? FORM_TEXTS.DEFAULTS.ANONYMOUS
           }
         });
       }
@@ -265,9 +266,13 @@ export default function UserForm({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[600px]">
         <DialogHeader>
-          <DialogTitle>{user ? '編輯使用者' : '新增使用者'}</DialogTitle>
+          <DialogTitle>
+            {user ? FORM_TEXTS.EDIT_USER_TITLE : FORM_TEXTS.ADD_USER_TITLE}
+          </DialogTitle>
           <DialogDescription>
-            {user ? '編輯使用者資訊表單' : '新增使用者資訊表單'}
+            {user
+              ? FORM_TEXTS.EDIT_USER_DESCRIPTION
+              : FORM_TEXTS.ADD_USER_DESCRIPTION}
           </DialogDescription>
         </DialogHeader>
         <Form {...form}>
@@ -282,13 +287,18 @@ export default function UserForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      姓名 <span className="text-red-500">*</span>
+                      {FORM_TEXTS.FIELDS.NAME.LABEL}{' '}
+                      <span className="text-red-500">
+                        {FORM_TEXTS.FIELDS.NAME.REQUIRED}
+                      </span>
                     </FormLabel>
                     <FormControl>
                       <Input
                         className="form-element"
                         placeholder={
-                          isMobile ? '2-10 字元' : '請輸入姓名 (2-10 字元)'
+                          isMobile
+                            ? FORM_TEXTS.FIELDS.NAME.MOBILE_PLACEHOLDER
+                            : FORM_TEXTS.FIELDS.NAME.PLACEHOLDER
                         }
                         {...field}
                       />
@@ -303,12 +313,19 @@ export default function UserForm({
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
-                      電子郵件 <span className="text-red-500">*</span>
+                      {FORM_TEXTS.FIELDS.EMAIL.LABEL}{' '}
+                      <span className="text-red-500">
+                        {FORM_TEXTS.FIELDS.EMAIL.REQUIRED}
+                      </span>
                     </FormLabel>
                     <FormControl>
                       <Input
                         className="form-element"
-                        placeholder={isMobile ? '電子郵件' : '請輸入電子郵件'}
+                        placeholder={
+                          isMobile
+                            ? FORM_TEXTS.FIELDS.EMAIL.MOBILE_PLACEHOLDER
+                            : FORM_TEXTS.FIELDS.EMAIL.PLACEHOLDER
+                        }
                         type="email"
                         {...field}
                       />
@@ -325,15 +342,21 @@ export default function UserForm({
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border border-[#cbd5e1] p-4">
                   <div className="space-y-0.5">
-                    <FormLabel className="text-base">帳號狀態</FormLabel>
+                    <FormLabel className="text-base">
+                      {FORM_TEXTS.FIELDS.STATUS.LABEL}
+                    </FormLabel>
                     <FormDescription>
-                      {field.value ? '啟用中' : '已停用'}
+                      {field.value
+                        ? FORM_TEXTS.FIELDS.STATUS.ACTIVE_DESCRIPTION
+                        : FORM_TEXTS.FIELDS.STATUS.INACTIVE_DESCRIPTION}
                     </FormDescription>
                   </div>
                   <FormControl>
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-muted-foreground">
-                        {field.value ? '啟用' : '停用'}
+                        {field.value
+                          ? FORM_TEXTS.FIELDS.STATUS.ACTIVE
+                          : FORM_TEXTS.FIELDS.STATUS.INACTIVE}
                       </span>
                       <Switch
                         checked={field.value}
@@ -351,11 +374,14 @@ export default function UserForm({
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
-                    描述 <span className="text-red-500">*</span>
+                    {FORM_TEXTS.FIELDS.DESCRIPTION.LABEL}{' '}
+                    <span className="text-red-500">
+                      {FORM_TEXTS.FIELDS.DESCRIPTION.REQUIRED}
+                    </span>
                   </FormLabel>
                   <FormControl>
                     <Textarea
-                      placeholder="請輸入描述 (5-200 字元)"
+                      placeholder={FORM_TEXTS.FIELDS.DESCRIPTION.PLACEHOLDER}
                       className="form-element min-h-[120px]"
                       {...field}
                     />
@@ -372,7 +398,7 @@ export default function UserForm({
                 data-testid="cancel-button"
                 onClick={() => onOpenChange(false)}
               >
-                取消
+                {FORM_TEXTS.BUTTONS.CANCEL}
               </Button>
               <Button
                 type="submit"
@@ -381,7 +407,7 @@ export default function UserForm({
                   !form.formState.isValid || form.formState.isSubmitting
                 }
               >
-                {user ? '更新' : '新增'}
+                {user ? FORM_TEXTS.BUTTONS.UPDATE : FORM_TEXTS.BUTTONS.SUBMIT}
               </Button>
             </div>
           </form>
