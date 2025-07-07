@@ -192,7 +192,7 @@ export default function UserForm({
         type: 'start_editing',
         payload: {
           recordId: user.id,
-          userName: username || 'anonymous'
+          userName: username ?? 'anonymous'
         }
       });
     } else {
@@ -201,7 +201,7 @@ export default function UserForm({
         type: 'stop_editing',
         payload: {
           recordId: user.id,
-          userName: username || 'anonymous'
+          userName: username ?? 'anonymous'
         }
       });
 
@@ -222,7 +222,7 @@ export default function UserForm({
           type: 'stop_editing',
           payload: {
             recordId: user.id,
-            userName: username || 'anonymous'
+            userName: username ?? 'anonymous'
           }
         });
       }
