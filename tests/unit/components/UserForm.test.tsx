@@ -1,5 +1,6 @@
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
+import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import UserForm from '../../../src/components/UserForm';
 
@@ -10,7 +11,7 @@ vi.mock('../../../src/hooks/useWebSocket', () => ({
   useWebSocket: () => ({ sendMessage: vi.fn() })
 }));
 vi.mock('../../../src/stores/useSessionStore', () => ({
-  useSessionStore: () => ({ username: 'Mark.S' })
+  useSessionStore: () => ({ user: { name: 'Mark.S' } })
 }));
 vi.mock('sonner', () => ({
   toast: { dismiss: vi.fn(), default: vi.fn() }
