@@ -6,12 +6,14 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { UsernameDialog } from '../../../src/components/UsernameDialog';
 import { useSessionStore } from '../../../src/stores/useSessionStore';
 
-const mockSetUsername = vi.fn();
+const mockLogin = vi.fn();
 
 vi.mock('../../../src/stores/useSessionStore', () => ({
   useSessionStore: vi.fn(() => ({
-    username: '',
-    setUsername: mockSetUsername
+    user: null,
+    login: mockLogin,
+    logout: vi.fn(),
+    isAuthenticated: () => false
   }))
 }));
 
@@ -24,8 +26,10 @@ describe('UsernameDialog', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     mockedUseSessionStore.mockReturnValue({
-      username: '',
-      setUsername: mockSetUsername
+      user: null,
+      login: mockLogin,
+      logout: vi.fn(),
+      isAuthenticated: () => false
     });
   });
 
@@ -61,7 +65,7 @@ describe('UsernameDialog', () => {
       await user.click(submitButton);
     });
 
-    expect(mockSetUsername).toHaveBeenCalledWith('TestUser');
+    expect(mockLogin).toHaveBeenCalledWith('TestUser');
     expect(mockOnUsernameSet).toHaveBeenCalledWith('TestUser');
     expect(mockHandleOpenChange).toHaveBeenCalledWith(false);
   });
@@ -81,6 +85,6 @@ describe('UsernameDialog', () => {
     await act(async () => {
       await user.click(submitButton);
     });
-    expect(mockSetUsername).not.toHaveBeenCalled();
+    expect(mockLogin).not.toHaveBeenCalled();
   });
 });

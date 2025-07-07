@@ -42,7 +42,7 @@ export function UsernameDialog({
   onOpenChange,
   onUsernameSet
 }: Readonly<UsernameDialogProps>) {
-  const { username, setUsername } = useSessionStore();
+  const { user, login } = useSessionStore();
   const [isControlled] = useState(controlledOpen !== undefined);
   const [internalOpen, setInternalOpen] = useState(false);
   const isOpen = isControlled ? controlledOpen : internalOpen;
@@ -65,16 +65,16 @@ export function UsernameDialog({
   );
 
   useEffect(() => {
-    if (!isControlled && !username) {
+    if (!isControlled && !user?.name) {
       handleOpenChange(true);
-    } else if (username && onUsernameSet) {
-      onUsernameSet(username);
+    } else if (user?.name && onUsernameSet) {
+      onUsernameSet(user.name);
     }
-  }, [username, onUsernameSet, isControlled, handleOpenChange]);
+  }, [user?.name, onUsernameSet, isControlled, handleOpenChange]);
 
   const onSubmit = (values: FormValues) => {
     const trimmedUsername = values.username.trim();
-    setUsername(trimmedUsername);
+    login(trimmedUsername);
     handleOpenChange(false);
     onUsernameSet?.(trimmedUsername);
   };

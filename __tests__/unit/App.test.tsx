@@ -33,8 +33,10 @@ describe('App', () => {
     vi.clearAllMocks();
     // Default mock implementation
     mockUseSessionStore.mockReturnValue({
-      username: '',
-      clearSession: vi.fn()
+      user: null,
+      login: vi.fn(),
+      logout: vi.fn(),
+      isAuthenticated: () => false
     });
   });
 
@@ -58,8 +60,10 @@ describe('App', () => {
   describe('登入狀態', () => {
     beforeEach(() => {
       mockUseSessionStore.mockReturnValue({
-        username: 'Mark.S',
-        clearSession: vi.fn()
+        user: { name: 'Mark.S' },
+        login: vi.fn(),
+        logout: vi.fn(),
+        isAuthenticated: () => true
       });
     });
 
