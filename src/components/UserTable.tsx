@@ -84,7 +84,7 @@ export default function UserTable() {
       </div>
 
       <div className="rounded-md border overflow-x-auto">
-        <Table>
+        <Table className="min-w-full" data-testid="user-table">
           <TableHeader>
             <TableRow>
               <TableHead className="text-sm sm:text-base w-[100px]">
@@ -134,6 +134,8 @@ export default function UserTable() {
                       size="icon"
                       onClick={() => handleDeleteClick(user)}
                       className="w-full sm:w-auto"
+                      aria-label="delete"
+                      data-testid="delete-btn"
                     >
                       <Trash2 className="h-4 w-4 text-red-500" />
                     </Button>
@@ -168,8 +170,8 @@ export default function UserTable() {
           <AlertDialogFooter>
             <AlertDialogCancel>取消</AlertDialogCancel>
             <AlertDialogAction
+              data-testid="confirm-delete-btn"
               onClick={confirmDelete}
-              className="bg-red-500 hover:bg-red-600"
             >
               確認刪除
             </AlertDialogAction>

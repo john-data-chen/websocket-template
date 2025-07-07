@@ -58,7 +58,7 @@ export default function UserForm({
   user,
   onSubmit
 }: UserFormProps) {
-  const { username } = useSessionStore();
+  const { user: currentUser } = useSessionStore();
   // Track other users who are editing
   const [editingUsers, setEditingUsers] = useState<readonly string[]>([]);
   // Currently only used for WebSocket updates, the variable itself is not used directly
@@ -75,7 +75,7 @@ export default function UserForm({
         user?.id === message.payload.recordId
       ) {
         const otherUsers = message.payload.users.filter(
-          (u: string) => u !== username
+          (u: string) => u !== currentUser?.name
         );
         console.log('Other users editing:', otherUsers);
 
@@ -102,7 +102,7 @@ export default function UserForm({
         }
       }
     },
-    [user?.id, username]
+    [user?.id, currentUser?.name]
   );
 
   // WebSocket connection
@@ -192,7 +192,7 @@ export default function UserForm({
         type: 'start_editing',
         payload: {
           recordId: user.id,
-          userName: username ?? 'anonymous'
+          userName: currentUser?.name || 'anonymous'
         }
       });
     } else {
@@ -201,7 +201,7 @@ export default function UserForm({
         type: 'stop_editing',
         payload: {
           recordId: user.id,
-          userName: username ?? 'anonymous'
+          userName: currentUser?.name || 'anonymous'
         }
       });
 
@@ -222,12 +222,12 @@ export default function UserForm({
           type: 'stop_editing',
           payload: {
             recordId: user.id,
-            userName: username ?? 'anonymous'
+            userName: currentUser?.name || 'anonymous'
           }
         });
       }
     };
-  }, [open, user?.id, username, sendMessage]);
+  }, [open, user?.id, currentUser?.name, sendMessage]);
 
   // When the form opens, reset the form and load the draft
   useEffect(() => {
@@ -369,12 +369,14 @@ export default function UserForm({
               <Button
                 type="button"
                 variant="outline"
+                data-testid="cancel-button"
                 onClick={() => onOpenChange(false)}
               >
                 取消
               </Button>
               <Button
                 type="submit"
+                data-testid="submit-button"
                 disabled={
                   !form.formState.isValid || form.formState.isSubmitting
                 }

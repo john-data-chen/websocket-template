@@ -8,7 +8,7 @@ import { WEBSOCKET_URL } from './constants/websocket';
 import { useSessionStore } from './stores/useSessionStore';
 
 function App() {
-  const { username, clearSession } = useSessionStore();
+  const { user, logout } = useSessionStore();
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   const [wsConnected, setWsConnected] = useState(false);
   const initialCheckDone = useRef(false);
@@ -16,10 +16,10 @@ function App() {
   // check if user is logged in, if not, open login dialog
   useEffect(() => {
     if (!initialCheckDone.current) {
-      setIsLoginDialogOpen(!username);
+      setIsLoginDialogOpen(!user);
       initialCheckDone.current = true;
     }
-  }, [username]);
+  }, [user]);
   const errorShownRef = useRef<boolean>(false);
   const reconnectAttempts = useRef<number>(0);
   const reconnectTimer = useRef<NodeJS.Timeout | null>(null);
@@ -147,7 +147,7 @@ function App() {
     <>
       <Analytics />
       <Toaster position="bottom-right" richColors />
-      <div className="min-h-screen bg-gray-50">
+      <div className="min-h-screen bg-gray-50" data-testid="app-root">
         <header className="bg-white shadow-sm sticky top-0 z-10">
           <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
@@ -167,15 +167,16 @@ function App() {
                   </div>
                 </div>
               </div>
-              {username && (
+              {user && (
                 <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto justify-between sm:justify-end">
                   <span className="text-xs sm:text-sm bg-blue-50 text-blue-700 px-2 sm:px-3 py-1 rounded-full truncate max-w-[180px] sm:max-w-none">
-                    歡迎, {username}!
+                    歡迎, {user.name}!
                   </span>
                   <button
-                    onClick={clearSession}
+                    onClick={logout}
                     className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 px-2 py-1 hover:bg-blue-50 rounded transition-colors"
-                    aria-label="登出"
+                    data-testid="logout-button"
+                    aria-label="logout-button"
                   >
                     登出
                   </button>
@@ -185,7 +186,7 @@ function App() {
           </div>
         </header>
         <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
-          {username ? (
+          {user ? (
             <div className="overflow-x-auto">
               <UserTable />
             </div>
@@ -199,6 +200,8 @@ function App() {
                   您需要登入才能使用此系統
                 </p>
                 <Button
+                  aria-label="login-button"
+                  data-testid="login-button"
                   onClick={() => setIsLoginDialogOpen(true)}
                   className="w-full sm:w-auto px-6 py-2"
                 >
@@ -213,7 +216,7 @@ function App() {
           open={isLoginDialogOpen}
           onOpenChange={(open) => {
             setIsLoginDialogOpen(open);
-            if (username) {
+            if (user) {
               setIsLoginDialogOpen(false);
             }
           }}

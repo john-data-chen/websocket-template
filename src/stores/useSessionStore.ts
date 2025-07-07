@@ -2,19 +2,21 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 
 interface SessionState {
-  username: string | null;
-  setUsername: (username: string) => void;
-  clearSession: () => void;
-  isLoggedIn: () => boolean;
+  user: {
+    name: string | null;
+  } | null;
+  login: (name: string) => void;
+  logout: () => void;
+  isAuthenticated: () => boolean;
 }
 
 export const useSessionStore = create<SessionState>()(
   persist(
     (set, get) => ({
-      username: null,
-      setUsername: (username: string) => set({ username }),
-      clearSession: () => set({ username: null }),
-      isLoggedIn: () => !!get().username
+      user: null,
+      login: (name: string) => set({ user: { name } }),
+      logout: () => set({ user: null }),
+      isAuthenticated: () => !!get().user?.name
     }),
     {
       name: 'user-session',

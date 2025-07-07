@@ -42,7 +42,7 @@ export function UsernameDialog({
   onOpenChange,
   onUsernameSet
 }: Readonly<UsernameDialogProps>) {
-  const { username, setUsername } = useSessionStore();
+  const { user, login } = useSessionStore();
   const [isControlled] = useState(controlledOpen !== undefined);
   const [internalOpen, setInternalOpen] = useState(false);
   const isOpen = isControlled ? controlledOpen : internalOpen;
@@ -65,22 +65,26 @@ export function UsernameDialog({
   );
 
   useEffect(() => {
-    if (!isControlled && !username) {
+    if (!isControlled && !user?.name) {
       handleOpenChange(true);
-    } else if (username && onUsernameSet) {
-      onUsernameSet(username);
+    } else if (user?.name && onUsernameSet) {
+      onUsernameSet(user.name);
     }
-  }, [username, onUsernameSet, isControlled, handleOpenChange]);
+  }, [user?.name, onUsernameSet, isControlled, handleOpenChange]);
 
   const onSubmit = (values: FormValues) => {
     const trimmedUsername = values.username.trim();
-    setUsername(trimmedUsername);
+    login(trimmedUsername);
     handleOpenChange(false);
     onUsernameSet?.(trimmedUsername);
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={handleOpenChange}
+      data-testid="login-dialog"
+    >
       <DialogContent className="sm:max-w-[425px] p-6 rounded-2xl w-full max-w-[90vw]">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -103,6 +107,7 @@ export function UsernameDialog({
                       autoComplete="off"
                       {...field}
                       className="form-element"
+                      data-testid="username-input"
                     />
                   </FormControl>
                   <FormMessage className="text-xs sm:text-sm" />
@@ -111,7 +116,11 @@ export function UsernameDialog({
             />
 
             <DialogFooter>
-              <Button type="submit" className="w-full sm:w-auto">
+              <Button
+                type="submit"
+                className="w-full sm:w-auto"
+                data-testid="login-confirm-button"
+              >
                 確認
               </Button>
             </DialogFooter>
