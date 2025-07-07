@@ -11,6 +11,12 @@ Object.entries(matchers).forEach(([matcherName, matcher]) => {
   }
 });
 
+global.ResizeObserver = class {
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+};
+
 // Run cleanup after each test case
 afterEach(() => {
   cleanup();

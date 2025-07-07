@@ -369,12 +369,14 @@ export default function UserForm({
               <Button
                 type="button"
                 variant="outline"
+                data-testid="cancel-button"
                 onClick={() => onOpenChange(false)}
               >
                 取消
               </Button>
               <Button
                 type="submit"
+                data-testid="submit-button"
                 disabled={
                   !form.formState.isValid || form.formState.isSubmitting
                 }
