@@ -13,9 +13,7 @@ export const nameSchema = z
 export const emailSchema = z
   .string()
   .min(1, { message: '請輸入電子郵件' })
-  .regex(/^[^\s@]+@[^\s@]+\.[^\s@]+$/, {
-    message: '請輸入有效的電子郵件地址'
-  });
+  .email({ message: '請輸入有效的電子郵件地址' });
 
 export const descriptionSchema = z
   .string()
