@@ -32,16 +32,16 @@ const formSchema = z.object({
 type FormValues = z.infer<typeof formSchema>;
 
 interface UsernameDialogProps {
-  open?: boolean;
-  onOpenChange?: (open: boolean) => void;
-  onUsernameSet?: (username: string) => void;
+  readonly open?: boolean;
+  readonly onOpenChange?: (open: boolean) => void;
+  readonly onUsernameSet?: (username: string) => void;
 }
 
 export function UsernameDialog({
   open: controlledOpen,
   onOpenChange,
   onUsernameSet
-}: UsernameDialogProps) {
+}: Readonly<UsernameDialogProps>) {
   const { username, setUsername } = useSessionStore();
   const [isControlled] = useState(controlledOpen !== undefined);
   const [internalOpen, setInternalOpen] = useState(false);
