@@ -46,10 +46,10 @@ type UserFormValues = {
 };
 
 interface UserFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  user: User | null;
-  onSubmit: (data: UserFormValues) => void;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly user: User | null;
+  readonly onSubmit: (data: UserFormValues) => void;
 }
 
 export default function UserForm({
