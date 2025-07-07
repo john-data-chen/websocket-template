@@ -59,7 +59,10 @@ export default function UserForm({
   onSubmit
 }: UserFormProps) {
   const { username } = useSessionStore();
-  const [, setEditingUsers] = useState<string[]>([]);
+  // Track other users who are editing
+  const [editingUsers, setEditingUsers] = useState<readonly string[]>([]);
+  // Currently only used for WebSocket updates, the variable itself is not used directly
+  void editingUsers;
   const toastIdRef = useRef<string | number | null>(null);
   const isMobile = useIsMobileScreen();
 
@@ -102,7 +105,7 @@ export default function UserForm({
     [user?.id, username]
   );
 
-  // WebSocket 連接
+  // WebSocket connection
   const { sendMessage } = useWebSocket(WEBSOCKET_URL, {
     onMessage: handleWebSocketMessage
   });
