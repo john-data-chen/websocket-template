@@ -80,7 +80,11 @@ export function UsernameDialog({
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleOpenChange}>
+    <Dialog
+      open={isOpen}
+      onOpenChange={handleOpenChange}
+      data-testid="login-dialog"
+    >
       <DialogContent className="sm:max-w-[425px] p-6 rounded-2xl w-full max-w-[90vw]">
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -103,6 +107,7 @@ export function UsernameDialog({
                       autoComplete="off"
                       {...field}
                       className="form-element"
+                      data-testid="username-input"
                     />
                   </FormControl>
                   <FormMessage className="text-xs sm:text-sm" />
@@ -111,7 +116,11 @@ export function UsernameDialog({
             />
 
             <DialogFooter>
-              <Button type="submit" className="w-full sm:w-auto">
+              <Button
+                type="submit"
+                className="w-full sm:w-auto"
+                data-testid="login-confirm-button"
+              >
                 確認
               </Button>
             </DialogFooter>
