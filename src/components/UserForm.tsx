@@ -46,10 +46,10 @@ type UserFormValues = {
 };
 
 interface UserFormProps {
-  open: boolean;
-  onOpenChange: (open: boolean) => void;
-  user: User | null;
-  onSubmit: (data: UserFormValues) => void;
+  readonly open: boolean;
+  readonly onOpenChange: (open: boolean) => void;
+  readonly user: User | null;
+  readonly onSubmit: (data: UserFormValues) => void;
 }
 
 export default function UserForm({
@@ -59,7 +59,10 @@ export default function UserForm({
   onSubmit
 }: UserFormProps) {
   const { username } = useSessionStore();
-  const [, setEditingUsers] = useState<string[]>([]);
+  // Track other users who are editing
+  const [editingUsers, setEditingUsers] = useState<readonly string[]>([]);
+  // Currently only used for WebSocket updates, the variable itself is not used directly
+  void editingUsers;
   const toastIdRef = useRef<string | number | null>(null);
   const isMobile = useIsMobileScreen();
 
@@ -102,7 +105,7 @@ export default function UserForm({
     [user?.id, username]
   );
 
-  // WebSocket 連接
+  // WebSocket connection
   const { sendMessage } = useWebSocket(WEBSOCKET_URL, {
     onMessage: handleWebSocketMessage
   });
@@ -189,7 +192,7 @@ export default function UserForm({
         type: 'start_editing',
         payload: {
           recordId: user.id,
-          userName: username || 'anonymous'
+          userName: username ?? 'anonymous'
         }
       });
     } else {
@@ -198,7 +201,7 @@ export default function UserForm({
         type: 'stop_editing',
         payload: {
           recordId: user.id,
-          userName: username || 'anonymous'
+          userName: username ?? 'anonymous'
         }
       });
 
@@ -219,7 +222,7 @@ export default function UserForm({
           type: 'stop_editing',
           payload: {
             recordId: user.id,
-            userName: username || 'anonymous'
+            userName: username ?? 'anonymous'
           }
         });
       }
