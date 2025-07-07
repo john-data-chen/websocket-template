@@ -9,8 +9,9 @@
 
 This is a demo project for a user list SPA using websocket.
 
-**Key Accomplishments**:
+**Extra Accomplishments**:
 
+- **Responsive Design**: for both desktop and mobile devices, using Tailwind CSS.
 - **Test Coverage**: 80%+
 - **Reliability, Security and Maintainability Rating in SonarQube**: A
 - **Cross-browser Testing**: for both desktop and mobile devices.
