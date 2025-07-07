@@ -84,7 +84,7 @@ export default function UserTable() {
       </div>
 
       <div className="rounded-md border overflow-x-auto">
-        <Table>
+        <Table className="min-w-full" data-testid="user-table">
           <TableHeader>
             <TableRow>
               <TableHead className="text-sm sm:text-base w-[100px]">

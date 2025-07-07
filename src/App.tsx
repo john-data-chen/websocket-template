@@ -175,7 +175,8 @@ function App() {
                   <button
                     onClick={clearSession}
                     className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 px-2 py-1 hover:bg-blue-50 rounded transition-colors"
-                    aria-label="登出"
+                    data-testid="logout-button"
+                    aria-label="logout-button"
                   >
                     登出
                   </button>
@@ -199,6 +200,8 @@ function App() {
                   您需要登入才能使用此系統
                 </p>
                 <Button
+                  aria-label="login-button"
+                  data-testid="login-button"
                   onClick={() => setIsLoginDialogOpen(true)}
                   className="w-full sm:w-auto px-6 py-2"
                 >
