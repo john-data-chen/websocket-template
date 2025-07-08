@@ -24,14 +24,14 @@ export type WebSocketMessage =
   | {
       type: 'start_editing' | 'stop_editing';
       payload: {
-        recordId: number;
+        recordId: string;
         userName: string;
       };
     }
   | {
       type: 'editing_status_update';
       payload: {
-        recordId: number;
+        recordId: string;
         users: string[];
       };
     };

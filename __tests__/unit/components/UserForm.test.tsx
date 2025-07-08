@@ -27,7 +27,7 @@ describe('UserForm', () => {
   };
 
   const testUser = {
-    id: 1,
+    id: '1',
     name: TEST_USER,
     email: TEST_EMAIL,
     isActive: false,
