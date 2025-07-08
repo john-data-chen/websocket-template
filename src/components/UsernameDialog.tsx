@@ -1,7 +1,7 @@
 'use client';
 
 import { DIALOG_TEXTS } from '@/constants/dialogTexts';
-import { usernameSchema } from '@/lib/validation';
+import { nameSchema } from '@/lib/validation';
 import { zodResolver } from '@hookform/resolvers/zod';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -25,7 +25,7 @@ import {
 import { Input } from './ui/input';
 
 const formSchema = z.object({
-  username: usernameSchema
+  username: nameSchema
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -51,6 +51,7 @@ export function UsernameDialog({
   const onSubmit = (values: FormValues) => {
     const trimmedUsername = values.username.trim();
     onUsernameSet?.(trimmedUsername);
+    onOpenChange?.(false);
   };
 
   return (
