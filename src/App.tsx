@@ -1,6 +1,7 @@
 import { Analytics } from '@vercel/analytics/react';
 import { useEffect, useRef, useState } from 'react';
 import { toast, Toaster } from 'sonner';
+import { ConnectionStatus } from './components/ConnectionStatus';
 import { Button } from './components/ui/button';
 import { UsernameDialog } from './components/UsernameDialog';
 import UserTable from './components/UserTable';
@@ -62,21 +63,7 @@ function App() {
                   <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
                     {APP_TEXTS.HEADER.TITLE}
                   </h1>
-                  <output className="flex items-center" aria-live="polite">
-                    <span
-                      className={`h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full ${wsConnected ? 'bg-green-500' : 'bg-red-500'} mr-1.5 sm:mr-2`}
-                      aria-hidden="true"
-                      data-testid="connection-status-indicator"
-                    />
-                    <span
-                      className="text-xs sm:text-sm text-gray-500"
-                      data-testid="connection-status-text"
-                    >
-                      {wsConnected
-                        ? APP_TEXTS.CONNECTION.CONNECTED
-                        : APP_TEXTS.CONNECTION.OFFLINE}
-                    </span>
-                  </output>
+                  <ConnectionStatus isConnected={wsConnected} />
                 </div>
               </div>
               {user && (
