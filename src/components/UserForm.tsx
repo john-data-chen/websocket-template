@@ -189,11 +189,17 @@ export default function UserForm({
     };
   }, [form, debouncedSaveDraft]);
 
+  // Track if we've sent a stop_editing message to prevent duplicates
+  const hasSentStopMessage = useRef(false);
+
   // When the form opens/closes, send corresponding WebSocket messages
   useEffect(() => {
     if (!user?.id) return;
 
     if (open) {
+      // Reset the flag when opening the form
+      hasSentStopMessage.current = false;
+
       const message = {
         type: 'start_editing' as const,
         payload: {
@@ -202,14 +208,16 @@ export default function UserForm({
         }
       };
 
-      // Log the WebSocket message being sent
       console.log(
         '[WebSocket] Sending message:',
         JSON.stringify(message, null, 2)
       );
 
       sendMessage(message);
-    } else {
+    } else if (!hasSentStopMessage.current) {
+      // Only send stop_editing if we haven't sent it yet
+      hasSentStopMessage.current = true;
+
       const message = {
         type: 'stop_editing' as const,
         payload: {
@@ -218,34 +226,42 @@ export default function UserForm({
         }
       };
 
-      // Log the WebSocket message being sent
       console.log(
         '[WebSocket] Sending message:',
         JSON.stringify(message, null, 2)
       );
 
       sendMessage(message);
-
-      // Clear editing users list
       setEditingUsers([]);
-
-      // Close Toast notification
-      if (toastIdRef.current) {
-        toast.dismiss(toastIdRef.current);
-        toastIdRef.current = null;
-      }
     }
 
+    // Cleanup function to send stop_editing when component unmounts
     return () => {
-      // Send stop editing message when component unmounts
-      if (user?.id) {
-        sendMessage({
-          type: 'stop_editing',
+      if (open && user?.id && !hasSentStopMessage.current) {
+        hasSentStopMessage.current = true;
+        const message = {
+          type: 'stop_editing' as const,
           payload: {
             recordId: user.id,
             userName: currentUser?.name ?? FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS
           }
-        });
+        };
+
+        console.log(
+          '[WebSocket] Cleanup - Sending message:',
+          JSON.stringify(message, null, 2)
+        );
+
+        sendMessage(message);
+      }
+
+      // Clear any pending draft saves
+      debouncedSaveDraft.cancel();
+
+      // Dismiss any active toast notifications
+      if (toastIdRef.current) {
+        toast.dismiss(toastIdRef.current);
+        toastIdRef.current = null;
       }
     };
   }, [open, user?.id, currentUser?.name, sendMessage]);
