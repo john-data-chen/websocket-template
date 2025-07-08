@@ -134,10 +134,7 @@ export default function UserTable() {
                       onClick={() => handleEditUser(user)}
                       className="w-full sm:w-auto"
                     >
-                      <Pencil
-                        className="h-4 w-4"
-                        aria-label={TABLE_TEXTS.ARIA_LABELS.EDIT}
-                      />
+                      <Pencil className="h-4 w-4" aria-label="edit" />
                     </Button>
                     <Button
                       variant="ghost"
@@ -149,7 +146,7 @@ export default function UserTable() {
                     >
                       <Trash2
                         className="h-4 w-4 text-red-500"
-                        aria-label={TABLE_TEXTS.ARIA_LABELS.DELETE}
+                        aria-label="delete"
                       />
                     </Button>
                   </div>

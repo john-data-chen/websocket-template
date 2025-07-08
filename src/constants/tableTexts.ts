@@ -30,12 +30,6 @@ export const TABLE_TEXTS = {
   DELETE_DIALOG: {
     TITLE: '確認刪除',
     DESCRIPTION: '確定要刪除使用者嗎？此操作無法復原。'
-  },
-
-  // Accessibility
-  ARIA_LABELS: {
-    DELETE: '刪除',
-    EDIT: '編輯'
   }
 } as const;
 
