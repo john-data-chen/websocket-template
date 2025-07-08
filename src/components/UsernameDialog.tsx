@@ -1,10 +1,8 @@
 'use client';
 
 import { DIALOG_TEXTS } from '@/constants/dialogTexts';
-import { usernameSchema } from '@/lib/validation';
-import { useSessionStore } from '@/stores/useSessionStore';
+import { nameSchema } from '@/lib/validation';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useEffect, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
 import { Button } from './ui/button';
@@ -27,7 +25,7 @@ import {
 import { Input } from './ui/input';
 
 const formSchema = z.object({
-  username: usernameSchema
+  username: nameSchema
 });
 
 type FormValues = z.infer<typeof formSchema>;
@@ -39,15 +37,10 @@ interface UsernameDialogProps {
 }
 
 export function UsernameDialog({
-  open: controlledOpen,
+  open,
   onOpenChange,
   onUsernameSet
 }: Readonly<UsernameDialogProps>) {
-  const { user, login } = useSessionStore();
-  const [isControlled] = useState(controlledOpen !== undefined);
-  const [internalOpen, setInternalOpen] = useState(false);
-  const isOpen = isControlled ? controlledOpen : internalOpen;
-
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -55,36 +48,17 @@ export function UsernameDialog({
     }
   });
 
-  const handleOpenChange = useCallback(
-    (open: boolean) => {
-      if (!isControlled) {
-        setInternalOpen(open);
-      }
-      onOpenChange?.(open);
-    },
-    [isControlled, onOpenChange]
-  );
-
-  useEffect(() => {
-    if (!isControlled && !user?.name) {
-      handleOpenChange(true);
-    } else if (user?.name && onUsernameSet) {
-      onUsernameSet(user.name);
-    }
-  }, [user?.name, onUsernameSet, isControlled, handleOpenChange]);
-
   const onSubmit = (values: FormValues) => {
     const trimmedUsername = values.username.trim();
-    login(trimmedUsername);
-    handleOpenChange(false);
     onUsernameSet?.(trimmedUsername);
+    onOpenChange?.(false);
   };
 
   return (
     <div data-testid="username-dialog">
       <Dialog
-        open={isOpen}
-        onOpenChange={handleOpenChange}
+        open={open}
+        onOpenChange={onOpenChange}
         aria-label="Username dialog"
       >
         <DialogContent className="sm:max-w-[425px] p-6 rounded-2xl w-full max-w-[90vw]">

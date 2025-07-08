@@ -1,10 +1,5 @@
 import { z } from 'zod';
 
-export const usernameSchema = z
-  .string()
-  .min(1, { message: '請輸入您的名字' })
-  .max(20, { message: '名字長度不能超過 20 個字元' });
-
 export const nameSchema = z
   .string()
   .min(2, { message: '姓名至少需要 2 個字元' })

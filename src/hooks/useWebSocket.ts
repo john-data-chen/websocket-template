@@ -1,30 +1,69 @@
-import type { WebSocketMessage } from '@/constants/websocket';
-import { useCallback, useEffect, useRef } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { WEBSOCKET_CONFIG } from '../constants/websocket';
+import type { WebSocketMessage } from '../types/websocket';
 
-type WebSocketCallbacks = {
+export interface WebSocketOptions {
+  maxReconnectAttempts?: number;
+  reconnectDelay?: number;
+  maxWaitTime?: number;
+  pingInterval?: number;
   onMessage?: (message: WebSocketMessage) => void;
   onOpen?: () => void;
   onClose?: () => void;
   onError?: (error: Event) => void;
-};
+  onReconnectFailed?: () => void;
+}
 
-export function useWebSocket(
-  url: string,
-  { onMessage, onOpen, onClose, onError }: WebSocketCallbacks = {}
-) {
+export function useWebSocket(url: string, options: WebSocketOptions = {}) {
+  const {
+    onMessage,
+    onOpen,
+    onClose,
+    onError,
+    onReconnectFailed,
+    maxReconnectAttempts = WEBSOCKET_CONFIG.MAX_RECONNECT_ATTEMPTS,
+    reconnectDelay = WEBSOCKET_CONFIG.RECONNECT_DELAY,
+    maxWaitTime = WEBSOCKET_CONFIG.MAX_WAIT_TIME,
+    pingInterval = WEBSOCKET_CONFIG.PING_INTERVAL
+  } = options;
+
   const ws = useRef<WebSocket | null>(null);
   const reconnectAttempts = useRef(0);
+  const reconnectTimer = useRef<NodeJS.Timeout | null>(null);
+  const pingTimer = useRef<NodeJS.Timeout | null>(null);
   const isMounted = useRef(true);
-  const maxReconnectAttempts = 5;
-  const reconnectInterval = 3000; // 3 seconds
+  const [isConnected, setIsConnected] = useState(false);
 
   // Save callback references to avoid unnecessary re-connections
-  const callbacksRef = useRef({ onMessage, onOpen, onClose, onError });
+  const callbacksRef = useRef({
+    onMessage,
+    onOpen,
+    onClose,
+    onError,
+    onReconnectFailed
+  });
 
   // Update callback references when they change
   useEffect(() => {
-    callbacksRef.current = { onMessage, onOpen, onClose, onError };
-  }, [onMessage, onOpen, onClose, onError]);
+    callbacksRef.current = {
+      onMessage,
+      onOpen,
+      onClose,
+      onError,
+      onReconnectFailed
+    };
+  }, [onMessage, onOpen, onClose, onError, onReconnectFailed]);
+
+  const clearTimers = useCallback(() => {
+    if (reconnectTimer.current) {
+      clearTimeout(reconnectTimer.current);
+      reconnectTimer.current = null;
+    }
+    if (pingTimer.current) {
+      clearInterval(pingTimer.current);
+      pingTimer.current = null;
+    }
+  }, []);
 
   const connect = useCallback(() => {
     if (!isMounted.current) return;
@@ -49,6 +88,8 @@ export function useWebSocket(
         }
         console.log('WebSocket connected');
         reconnectAttempts.current = 0;
+        setIsConnected(true);
+        clearTimers();
         callbacksRef.current.onOpen?.();
       };
 
@@ -77,17 +118,25 @@ export function useWebSocket(
         if (!isMounted.current) return;
 
         console.log('WebSocket disconnected');
+        setIsConnected(false);
         callbacksRef.current.onClose?.();
 
         // Attempt to reconnect
         if (reconnectAttempts.current < maxReconnectAttempts) {
+          const delay = Math.min(
+            reconnectDelay * Math.pow(2, reconnectAttempts.current),
+            maxWaitTime
+          );
+
           reconnectAttempts.current += 1;
           console.log(
-            `Attempting to reconnect (${reconnectAttempts.current}/${maxReconnectAttempts})...`
+            `Attempting to reconnect (${reconnectAttempts.current}/${maxReconnectAttempts}) in ${delay}ms...`
           );
-          setTimeout(connect, reconnectInterval);
+
+          reconnectTimer.current = setTimeout(connect, delay);
         } else {
           console.error('Max reconnection attempts reached');
+          callbacksRef.current.onReconnectFailed?.();
         }
       };
 
@@ -95,69 +144,75 @@ export function useWebSocket(
         if (!isMounted.current) return;
 
         console.error('WebSocket error:', error);
-        console.error('WebSocket readyState:', socket.readyState);
-        console.error('WebSocket URL:', url);
-
-        // If connection is closed, attempt to reconnect
-        if (socket.readyState === WebSocket.CLOSED) {
-          console.log(
-            'WebSocket connection closed, attempting to reconnect...'
-          );
-          setTimeout(connect, reconnectInterval);
-        }
-
         callbacksRef.current.onError?.(error);
       };
     } catch (error) {
       console.error('Error creating WebSocket:', error);
     }
-  }, [url]);
+  }, [clearTimers, maxReconnectAttempts, maxWaitTime, reconnectDelay, url]);
 
-  const sendMessage = useCallback(
-    (message: WebSocketMessage) => {
-      if (!ws.current) {
-        console.warn('WebSocket is not initialized');
+  const sendMessage = useCallback((message: WebSocketMessage) => {
+    if (!ws.current) {
+      console.warn('WebSocket is not initialized');
+      return false;
+    }
+
+    if (ws.current.readyState === WebSocket.OPEN) {
+      try {
+        ws.current.send(JSON.stringify(message));
+        return true;
+      } catch (error) {
+        console.error('Error sending WebSocket message:', error);
         return false;
       }
+    }
 
-      if (ws.current.readyState === WebSocket.OPEN) {
-        try {
-          ws.current.send(JSON.stringify(message));
-          console.log('WebSocket message sent:', message);
-          return true;
-        } catch (error) {
-          console.error('Error sending WebSocket message:', error);
-          return false;
-        }
+    console.warn(
+      `WebSocket is not connected. ReadyState: ${ws.current.readyState}`
+    );
+    return false;
+  }, []);
+
+  // Setup ping interval when connected
+  useEffect(() => {
+    if (!isConnected) return;
+
+    pingTimer.current = setInterval(() => {
+      if (ws.current?.readyState === WebSocket.OPEN) {
+        sendMessage({ type: 'ping' });
       }
+    }, pingInterval);
 
-      console.warn(
-        `WebSocket is not connected. ReadyState: ${ws.current.readyState}`
-      );
-
-      // If connection is closed, attempt to reconnect
-      if (ws.current.readyState === WebSocket.CLOSED) {
-        console.log('Attempting to reconnect...');
-        connect();
+    return () => {
+      if (pingTimer.current) {
+        clearInterval(pingTimer.current);
+        pingTimer.current = null;
       }
+    };
+  }, [isConnected, pingInterval, sendMessage]);
 
-      return false;
-    },
-    [connect]
-  );
-
+  // Initialize WebSocket connection
   useEffect(() => {
     isMounted.current = true;
     connect();
 
     return () => {
       isMounted.current = false;
+      clearTimers();
+
       if (ws.current) {
+        ws.current.onopen = null;
+        ws.current.onclose = null;
+        ws.current.onerror = null;
         ws.current.close();
         ws.current = null;
       }
     };
-  }, [connect]);
+  }, [connect, clearTimers]);
 
-  return { sendMessage };
+  return {
+    isConnected,
+    sendMessage,
+    reconnect: connect
+  };
 }

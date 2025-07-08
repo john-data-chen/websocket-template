@@ -62,7 +62,6 @@ describe('UsernameDialog', () => {
       await user.click(submitButton);
     });
 
-    expect(mockLogin).toHaveBeenCalledWith('TestUser');
     expect(mockOnUsernameSet).toHaveBeenCalledWith('TestUser');
     expect(mockHandleOpenChange).toHaveBeenCalledWith(false);
   });

@@ -1,30 +1,41 @@
 import App from '@/App';
-import { APP_TEXTS } from '@/constants/appTexts';
-import { TEST_USER } from '@/constants/mockData';
 import { useSessionStore } from '@/stores/useSessionStore';
-import '@testing-library/jest-dom/vitest';
-import { cleanup, render, screen } from '@testing-library/react';
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-vi.mock('@vercel/analytics/react', () => ({ Analytics: () => null }));
-vi.mock('sonner', () => ({
-  Toaster: () => null,
-  toast: { error: vi.fn(), dismiss: vi.fn() }
+// Mock the session store for testing
+
+// Mock child components
+vi.mock('@/components/ConnectionStatus', () => ({
+  ConnectionStatus: () => <div data-testid="connection-status" />
 }));
-interface UsernameDialogProps {
-  open: boolean;
-  onClose: () => void;
-  onConfirm: (username: string) => void;
-}
+
+vi.mock('@/components/UserInfo', () => ({
+  UserInfo: () => <div data-testid="user-info" />
+}));
+
+vi.mock('@/components/UserTable', () => ({
+  default: () => <div data-testid="user-table" />
+}));
 
 vi.mock('@/components/UsernameDialog', () => ({
-  UsernameDialog: ({ open }: UsernameDialogProps) =>
-    open ? <div data-testid="login-dialog">LoginDialog</div> : null
+  UsernameDialog: () => <div data-testid="username-dialog" />
 }));
 
-// Mock session store for testing
-vi.mock('@/stores/useSessionStore', () => ({
-  useSessionStore: vi.fn()
+// Mock stores and hooks
+vi.mock('@/stores/useSessionStore');
+vi.mock('@/stores/useWebSocketStore', () => ({
+  useWebSocketConnection: () => ({ isConnected: true })
+}));
+
+// Mock analytics and UI components
+vi.mock('@vercel/analytics/react', () => ({
+  Analytics: () => null
+}));
+
+vi.mock('sonner', () => ({
+  Toaster: () => null,
+  toast: { error: vi.fn() }
 }));
 
 const mockUseSessionStore = vi.mocked(useSessionStore);
@@ -32,7 +43,8 @@ const mockUseSessionStore = vi.mocked(useSessionStore);
 describe('App', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Default mock implementation
+
+    // Default mock implementation (not authenticated)
     mockUseSessionStore.mockReturnValue({
       user: null,
       login: vi.fn(),
@@ -41,47 +53,43 @@ describe('App', () => {
     });
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-    cleanup();
-  });
-
-  it('should show login prompt when not logged in', () => {
+  it('should render the main layout', () => {
     render(<App />);
-    expect(screen.queryByTestId('user-table')).not.toBeInTheDocument();
 
-    // Verify login button is shown
-    const loginButtons = screen.getByTestId('open-login-dialog-button');
-    expect(loginButtons).toBeInTheDocument();
+    // Check for header
+    expect(screen.getByRole('banner')).toBeInTheDocument();
+
+    // Check for connection status
+    expect(screen.getByTestId('connection-status')).toBeInTheDocument();
+
+    // Check for main content container
+    const appRoot = screen.getByTestId('app-root');
+    expect(appRoot).toBeInTheDocument();
   });
 
-  describe('when logged in', () => {
-    beforeEach(() => {
-      mockUseSessionStore.mockReturnValue({
-        user: { name: TEST_USER },
-        login: vi.fn(),
-        logout: vi.fn(),
-        isAuthenticated: () => true
-      });
+  it('should show login dialog when not authenticated', () => {
+    render(<App />);
+
+    expect(screen.getByTestId('username-dialog')).toBeInTheDocument();
+  });
+
+  it('should show user table when authenticated', () => {
+    // Mock authenticated state
+    mockUseSessionStore.mockReturnValue({
+      user: { name: 'Test User' },
+      login: vi.fn(),
+      logout: vi.fn(),
+      isAuthenticated: () => true
     });
 
-    it('should display UserTable and welcome message', () => {
-      render(<App />);
+    render(<App />);
 
-      // Check user table is shown
-      expect(screen.getByTestId('user-table')).toBeInTheDocument();
+    expect(screen.getByTestId('user-info')).toBeInTheDocument();
+    expect(screen.getByTestId('user-table')).toBeInTheDocument();
+  });
 
-      // Check login prompt is hidden
-      expect(
-        screen.queryByText(APP_TEXTS.HEADER.WELCOME)
-      ).not.toBeInTheDocument();
-
-      // Check welcome message
-      expect(screen.getByTestId('welcome-text')).toBeInTheDocument();
-
-      // Check logout button is shown
-      const logoutButtons = screen.getAllByTestId('logout-button');
-      expect(logoutButtons).toHaveLength(1);
-    });
+  it('should show connection status', () => {
+    render(<App />);
+    expect(screen.getByTestId('connection-status')).toBeInTheDocument();
   });
 });
