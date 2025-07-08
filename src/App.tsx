@@ -6,20 +6,18 @@ import { UsernameDialog } from './components/UsernameDialog';
 import UserTable from './components/UserTable';
 import { APP_TEXTS } from './constants/appTexts';
 import { WEBSOCKET_CONFIG, WEBSOCKET_URL } from './constants/websocket';
+import { useAuth } from './hooks/useAuth';
 import { useWebSocket } from './hooks/useWebSocket';
-import { useSessionStore } from './stores/useSessionStore';
 
 function App() {
-  const { user, logout } = useSessionStore();
+  const { user, login, logout } = useAuth();
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
-  const initialCheckDone = useRef(false);
   const errorShownRef = useRef<boolean>(false);
 
-  // Check if user is logged in, if not, open login dialog
+  // Show login dialog if user is not logged in
   useEffect(() => {
-    if (!initialCheckDone.current) {
-      setIsLoginDialogOpen(!user);
-      initialCheckDone.current = true;
+    if (!user) {
+      setIsLoginDialogOpen(true);
     }
   }, [user]);
 
@@ -139,9 +137,10 @@ function App() {
           open={isLoginDialogOpen}
           onOpenChange={(open) => {
             setIsLoginDialogOpen(open);
-            if (user) {
-              setIsLoginDialogOpen(false);
-            }
+          }}
+          onUsernameSet={(username) => {
+            login(username);
+            setIsLoginDialogOpen(false);
           }}
         />
       </main>
