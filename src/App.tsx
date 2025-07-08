@@ -5,7 +5,7 @@ import { Button } from './components/ui/button';
 import { UsernameDialog } from './components/UsernameDialog';
 import UserTable from './components/UserTable';
 import { APP_TEXTS } from './constants/appTexts';
-import { WEBSOCKET_URL } from './constants/websocket';
+import { WEBSOCKET_CONFIG, WEBSOCKET_URL } from './constants/websocket';
 import { useSessionStore } from './stores/useSessionStore';
 
 function App() {
@@ -27,9 +27,13 @@ function App() {
   const ws = useRef<WebSocket | null>(null);
   const pingInterval = useRef<NodeJS.Timeout | null>(null);
   const isMounted = useRef<boolean>(true);
-
-  const MAX_RECONNECT_ATTEMPTS = 5;
-  const RECONNECT_DELAY = 3000; // 3 seconds base delay
+  const {
+    MAX_RECONNECT_ATTEMPTS,
+    RECONNECT_DELAY,
+    TOAST_DURATION,
+    MAX_WAIT_TIME,
+    PING_INTERVAL
+  } = WEBSOCKET_CONFIG;
 
   const showConnectionError = useCallback(() => {
     if (!isMounted.current || errorShownRef.current) return;
@@ -37,10 +41,10 @@ function App() {
     errorShownRef.current = true;
     toast.error(APP_TEXTS.CONNECTION.ERROR.TITLE, {
       description: APP_TEXTS.CONNECTION.ERROR.DESCRIPTION,
-      duration: 5000,
+      duration: TOAST_DURATION,
       id: 'websocket-error'
     });
-  }, []);
+  }, [TOAST_DURATION]);
 
   const setupWebSocket = useCallback(() => {
     if (!isMounted.current) return;
@@ -85,7 +89,7 @@ function App() {
         if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
           const delay = Math.min(
             RECONNECT_DELAY * Math.pow(2, reconnectAttempts.current),
-            30000 // Max 30 seconds
+            MAX_WAIT_TIME // Max wait time
           );
 
           reconnectTimer.current = setTimeout(() => {
@@ -103,7 +107,12 @@ function App() {
       setWsConnected(false);
       showConnectionError();
     }
-  }, [showConnectionError]);
+  }, [
+    showConnectionError,
+    MAX_RECONNECT_ATTEMPTS,
+    RECONNECT_DELAY,
+    MAX_WAIT_TIME
+  ]);
 
   // Set up ping interval when connected
   useEffect(() => {
@@ -113,14 +122,14 @@ function App() {
       if (ws.current?.readyState === WebSocket.OPEN) {
         ws.current.send(JSON.stringify({ type: 'ping' }));
       }
-    }, 30000);
+    }, PING_INTERVAL);
 
     return () => {
       if (pingInterval.current) {
         clearInterval(pingInterval.current);
       }
     };
-  }, [wsConnected]);
+  }, [wsConnected, PING_INTERVAL]);
 
   // Initial WebSocket setup
   useEffect(() => {
