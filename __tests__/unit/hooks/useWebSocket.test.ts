@@ -1,7 +1,7 @@
+import type { WebSocketMessage } from '@/constants/websocket';
+import { useWebSocket } from '@/hooks/useWebSocket';
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import type { WebSocketMessage } from '../../../src/constants/websocket';
-import { useWebSocket } from '../../../src/hooks/useWebSocket';
 
 type MockWebSocket = {
   onmessage: ((event: MessageEvent) => void) | null;
@@ -86,7 +86,7 @@ describe('useWebSocket', () => {
     vi.restoreAllMocks();
   });
 
-  it('應該創建 WebSocket 連接並設置事件處理器', () => {
+  it('should create WebSocket connection and set up event handlers', () => {
     renderHook(() => useWebSocket(TEST_URL));
 
     expect(global.WebSocket).toHaveBeenCalledWith(TEST_URL);
@@ -97,7 +97,7 @@ describe('useWebSocket', () => {
     expect(mockWebSocket.onerror).toBeDefined();
   });
 
-  it('應該在組件卸載時關閉 WebSocket 連接', () => {
+  it('should close WebSocket connection when component unmounts', () => {
     const { unmount } = renderHook(() => useWebSocket(TEST_URL));
 
     act(() => {
@@ -113,7 +113,7 @@ describe('useWebSocket', () => {
     });
   });
 
-  it('應該處理接收消息', () => {
+  it('should handle received messages', () => {
     const testMessage: WebSocketMessage = {
       type: 'message',
       message: {
@@ -135,10 +135,9 @@ describe('useWebSocket', () => {
     });
 
     expect(mockOnMessage).toHaveBeenCalledWith(testMessage);
-    expect(mockOnMessage).toHaveBeenCalledWith(testMessage);
   });
 
-  it('應該處理 WebSocket 打開事件', () => {
+  it('should handle WebSocket open event', () => {
     renderHook(() =>
       useWebSocket(TEST_URL, {
         onOpen: mockOnOpen
@@ -150,10 +149,9 @@ describe('useWebSocket', () => {
     });
 
     expect(mockOnOpen).toHaveBeenCalled();
-    expect(mockOnOpen).toHaveBeenCalled();
   });
 
-  it('應該處理 WebSocket 關閉事件', () => {
+  it('should handle WebSocket close event', () => {
     renderHook(() =>
       useWebSocket(TEST_URL, {
         onClose: mockOnClose
@@ -165,10 +163,9 @@ describe('useWebSocket', () => {
     });
 
     expect(mockOnClose).toHaveBeenCalled();
-    expect(mockOnClose).toHaveBeenCalled();
   });
 
-  it('應該處理 WebSocket 錯誤事件', () => {
+  it('should handle WebSocket error event', () => {
     renderHook(() =>
       useWebSocket(TEST_URL, {
         onError: mockOnError
@@ -180,10 +177,9 @@ describe('useWebSocket', () => {
     });
 
     expect(mockOnError).toHaveBeenCalled();
-    expect(mockOnError).toHaveBeenCalled();
   });
 
-  it('應該在連接關閉後嘗試重新連接', async () => {
+  it('should wait for connection to be established before sending messages', async () => {
     vi.useFakeTimers();
 
     const { unmount } = renderHook(() =>
