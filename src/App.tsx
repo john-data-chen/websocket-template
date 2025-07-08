@@ -148,11 +148,7 @@ function App() {
     <>
       <Analytics />
       <Toaster position="bottom-right" richColors />
-      <div
-        className="min-h-screen bg-gray-50"
-        data-testid="app-root"
-        role="main"
-      >
+      <main className="min-h-screen bg-gray-50" data-testid="app-root">
         <header className="bg-white shadow-sm sticky top-0 z-10">
           <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
@@ -161,11 +157,7 @@ function App() {
                   <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
                     {APP_TEXTS.HEADER.TITLE}
                   </h1>
-                  <div
-                    className="flex items-center"
-                    role="status"
-                    aria-live="polite"
-                  >
+                  <output className="flex items-center" aria-live="polite">
                     <span
                       className={`h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full ${wsConnected ? 'bg-green-500' : 'bg-red-500'} mr-1.5 sm:mr-2`}
                       aria-hidden="true"
@@ -179,7 +171,7 @@ function App() {
                         ? APP_TEXTS.CONNECTION.CONNECTED
                         : APP_TEXTS.CONNECTION.OFFLINE}
                     </span>
-                  </div>
+                  </output>
                 </div>
               </div>
               {user && (
@@ -191,7 +183,7 @@ function App() {
                   >
                     {APP_TEXTS.HEADER.WELCOME.replace(
                       '{{name}}',
-                      user.name || ''
+                      user.name ?? ''
                     )}
                   </span>
                   <Button
@@ -245,7 +237,7 @@ function App() {
             }
           }}
         />
-      </div>
+      </main>
     </>
   );
 }
