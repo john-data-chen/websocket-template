@@ -74,13 +74,23 @@ export default function UserTable() {
   };
 
   return (
-    <div className="container mx-auto py-4 sm:py-8">
+    <div
+      className="container mx-auto py-4 sm:py-8"
+      data-testid="user-table-container"
+    >
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-4 sm:mb-6">
         <h1 className="text-xl sm:text-2xl font-bold">
           {TABLE_TEXTS.PAGE_TITLE}
         </h1>
         <div className="w-full sm:w-auto">
-          <Button onClick={handleAddUser} className="w-full sm:w-auto">
+          <Button
+            variant="outline"
+            size="sm"
+            className="ml-auto h-8 lg:flex"
+            onClick={handleAddUser}
+            data-testid="add-user-button"
+            aria-label="Add new user"
+          >
             {TABLE_TEXTS.BUTTONS.ADD_USER}
           </Button>
         </div>
@@ -133,20 +143,22 @@ export default function UserTable() {
                       size="icon"
                       onClick={() => handleEditUser(user)}
                       className="w-full sm:w-auto"
+                      data-testid={`edit-user-${user.id}-button`}
+                      aria-label={`Edit user ${user.name}`}
                     >
-                      <Pencil className="h-4 w-4" aria-label="edit" />
+                      <Pencil className="h-4 w-4" />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
-                      onClick={() => handleDeleteClick(user)}
                       className="w-full sm:w-auto"
-                      aria-label="delete"
-                      data-testid="delete-btn"
+                      onClick={() => handleDeleteClick(user)}
+                      data-testid={`delete-user-${user.id}-button`}
+                      aria-label={`Delete user ${user.name}`}
                     >
                       <Trash2
                         className="h-4 w-4 text-red-500"
-                        aria-label="delete"
+                        aria-hidden="true"
                       />
                     </Button>
                   </div>
@@ -170,20 +182,22 @@ export default function UserTable() {
       >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>
+            <AlertDialogTitle data-testid="delete-dialog-title">
               {TABLE_TEXTS.DELETE_DIALOG.TITLE}
             </AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogDescription data-testid="delete-dialog-description">
               確定要刪除使用者{' '}
               <span className="font-semibold">{userToDelete?.name}</span>{' '}
               嗎？此操作無法復原。
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>{TABLE_TEXTS.BUTTONS.CANCEL}</AlertDialogCancel>
+            <AlertDialogCancel data-testid="cancel-delete-button">
+              {TABLE_TEXTS.BUTTONS.CANCEL}
+            </AlertDialogCancel>
             <AlertDialogAction
-              data-testid="confirm-delete-btn"
               onClick={confirmDelete}
+              data-testid="confirm-delete-button"
             >
               {TABLE_TEXTS.BUTTONS.CONFIRM_DELETE}
             </AlertDialogAction>

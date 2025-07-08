@@ -84,7 +84,8 @@ export function UsernameDialog({
     <Dialog
       open={isOpen}
       onOpenChange={handleOpenChange}
-      data-testid="login-dialog"
+      data-testid="username-dialog"
+      aria-label="Username dialog"
     >
       <DialogContent className="sm:max-w-[425px] p-6 rounded-2xl w-full max-w-[90vw]">
         <Form {...form}>
@@ -109,10 +110,12 @@ export function UsernameDialog({
                   <FormControl>
                     <Input
                       placeholder={DIALOG_TEXTS.WELCOME.PLACEHOLDER}
-                      autoComplete="off"
+                      autoComplete="username"
                       {...field}
                       className="form-element"
                       data-testid="username-input"
+                      aria-required="true"
+                      aria-label="Enter your username"
                     />
                   </FormControl>
                   <FormMessage className="text-xs sm:text-sm" />
@@ -124,7 +127,8 @@ export function UsernameDialog({
               <Button
                 type="submit"
                 className="w-full sm:w-auto"
-                data-testid="login-confirm-button"
+                data-testid="confirm-username-button"
+                aria-label="Confirm username"
               >
                 {DIALOG_TEXTS.WELCOME.BUTTON}
               </Button>

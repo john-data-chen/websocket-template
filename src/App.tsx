@@ -148,7 +148,11 @@ function App() {
     <>
       <Analytics />
       <Toaster position="bottom-right" richColors />
-      <div className="min-h-screen bg-gray-50" data-testid="app-root">
+      <div
+        className="min-h-screen bg-gray-50"
+        data-testid="app-root"
+        role="main"
+      >
         <header className="bg-white shadow-sm sticky top-0 z-10">
           <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
@@ -157,12 +161,20 @@ function App() {
                   <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
                     {APP_TEXTS.HEADER.TITLE}
                   </h1>
-                  <div className="flex items-center">
+                  <div
+                    className="flex items-center"
+                    role="status"
+                    aria-live="polite"
+                  >
                     <span
                       className={`h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full ${wsConnected ? 'bg-green-500' : 'bg-red-500'} mr-1.5 sm:mr-2`}
                       aria-hidden="true"
+                      data-testid="connection-status-indicator"
                     />
-                    <span className="text-xs sm:text-sm text-gray-500">
+                    <span
+                      className="text-xs sm:text-sm text-gray-500"
+                      data-testid="connection-status-text"
+                    >
                       {wsConnected
                         ? APP_TEXTS.CONNECTION.CONNECTED
                         : APP_TEXTS.CONNECTION.OFFLINE}
@@ -182,7 +194,8 @@ function App() {
                     onClick={logout}
                     className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 px-2 py-1 hover:bg-blue-50 rounded transition-colors"
                     data-testid="logout-button"
-                    aria-label="logout-button"
+                    aria-label="Logout"
+                    type="button"
                   >
                     {APP_TEXTS.HEADER.LOGOUT}
                   </button>
@@ -206,10 +219,10 @@ function App() {
                   {APP_TEXTS.LOGIN.PROMPT}
                 </p>
                 <Button
-                  aria-label="login-button"
-                  data-testid="login-button"
+                  aria-label="Open login dialog"
+                  data-testid="open-login-dialog-button"
                   onClick={() => setIsLoginDialogOpen(true)}
-                  className="w-full sm:w-auto px-6 py-2"
+                  className="w-full sm:w-auto"
                 >
                   登入
                 </Button>
