@@ -1,7 +1,6 @@
 import { Analytics } from '@vercel/analytics/react';
 import { useEffect, useState } from 'react';
 import { Toaster } from 'sonner';
-import { ConnectionStatus } from './components/ConnectionStatus';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ErrorFallback } from './components/ErrorFallback';
 import { Button } from './components/ui/button';
@@ -10,15 +9,11 @@ import { UsernameDialog } from './components/UsernameDialog';
 import UserTable from './components/UserTable';
 import { APP_TEXTS } from './constants/appTexts';
 import { useAuth } from './hooks/useAuth';
-import {
-  useWebSocketActions,
-  useWebSocketConnection
-} from './stores/useWebSocketStore';
+import { useWebSocketActions } from './stores/useWebSocketStore';
 
 function App() {
   const { user, login, logout } = useAuth();
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
-  const { isConnected: wsConnected } = useWebSocketConnection();
   const { connect } = useWebSocketActions();
 
   // Initialize WebSocket connection
@@ -52,7 +47,6 @@ function App() {
                     <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
                       {APP_TEXTS.HEADER.TITLE}
                     </h1>
-                    <ConnectionStatus isConnected={wsConnected} />
                   </div>
                 </div>
                 <UserInfo userName={user?.name ?? null} onLogout={logout} />

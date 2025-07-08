@@ -1,5 +1,5 @@
 import UserForm from '@/components/UserForm';
-import { FORM_TEXTS } from '@/constants/formTexts';
+import { FORM_ATTRIBUTES } from '@/constants/formAttribute';
 import { TEST_DESCRIPTION, TEST_EMAIL, TEST_USER } from '@/constants/mockData';
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
@@ -44,33 +44,37 @@ describe('UserForm', () => {
     render(<UserForm {...baseProps} onSubmit={onSubmit} />);
 
     fireEvent.change(
-      screen.getByPlaceholderText(FORM_TEXTS.FIELDS.NAME.PLACEHOLDER),
+      screen.getByPlaceholderText(FORM_ATTRIBUTES.FIELDS.NAME.PLACEHOLDER),
       {
         target: { value: TEST_USER }
       }
     );
     fireEvent.blur(
-      screen.getByPlaceholderText(FORM_TEXTS.FIELDS.NAME.PLACEHOLDER)
+      screen.getByPlaceholderText(FORM_ATTRIBUTES.FIELDS.NAME.PLACEHOLDER)
     );
 
     fireEvent.change(
-      screen.getByPlaceholderText(FORM_TEXTS.FIELDS.EMAIL.PLACEHOLDER),
+      screen.getByPlaceholderText(FORM_ATTRIBUTES.FIELDS.EMAIL.PLACEHOLDER),
       {
         target: { value: TEST_EMAIL }
       }
     );
     fireEvent.blur(
-      screen.getByPlaceholderText(FORM_TEXTS.FIELDS.EMAIL.PLACEHOLDER)
+      screen.getByPlaceholderText(FORM_ATTRIBUTES.FIELDS.EMAIL.PLACEHOLDER)
     );
 
     fireEvent.change(
-      screen.getByPlaceholderText(FORM_TEXTS.FIELDS.DESCRIPTION.PLACEHOLDER),
+      screen.getByPlaceholderText(
+        FORM_ATTRIBUTES.FIELDS.DESCRIPTION.PLACEHOLDER
+      ),
       {
         target: { value: TEST_DESCRIPTION }
       }
     );
     fireEvent.blur(
-      screen.getByPlaceholderText(FORM_TEXTS.FIELDS.DESCRIPTION.PLACEHOLDER)
+      screen.getByPlaceholderText(
+        FORM_ATTRIBUTES.FIELDS.DESCRIPTION.PLACEHOLDER
+      )
     );
 
     // Wait for button to be enabled
@@ -92,7 +96,9 @@ describe('UserForm', () => {
 
   it('renders edit form when user prop is provided', () => {
     render(<UserForm {...baseProps} user={testUser} />);
-    expect(screen.getByText(FORM_TEXTS.EDIT_USER_TITLE)).toBeInTheDocument();
+    expect(
+      screen.getByText(FORM_ATTRIBUTES.EDIT_USER_TITLE)
+    ).toBeInTheDocument();
     expect(screen.getByDisplayValue(TEST_USER)).toBeInTheDocument();
     expect(screen.getByDisplayValue(TEST_EMAIL)).toBeInTheDocument();
     expect(screen.getByDisplayValue(TEST_DESCRIPTION)).toBeInTheDocument();
@@ -101,7 +107,7 @@ describe('UserForm', () => {
   it('calls onOpenChange(false) when cancel is clicked', () => {
     const onOpenChange = vi.fn();
     render(<UserForm {...baseProps} onOpenChange={onOpenChange} />);
-    fireEvent.click(screen.getByText(FORM_TEXTS.BUTTONS.CANCEL));
+    fireEvent.click(screen.getByText(FORM_ATTRIBUTES.BUTTONS.CANCEL));
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 });

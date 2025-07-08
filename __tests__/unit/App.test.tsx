@@ -6,10 +6,6 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 // Mock the session store for testing
 
 // Mock child components
-vi.mock('@/components/ConnectionStatus', () => ({
-  ConnectionStatus: () => <div data-testid="connection-status" />
-}));
-
 vi.mock('@/components/UserInfo', () => ({
   UserInfo: () => <div data-testid="user-info" />
 }));
@@ -68,9 +64,6 @@ describe('App', () => {
     // Check for header
     expect(screen.getByRole('banner')).toBeInTheDocument();
 
-    // Check for connection status
-    expect(screen.getByTestId('connection-status')).toBeInTheDocument();
-
     // Check for main content container
     const appRoot = screen.getByTestId('app-root');
     expect(appRoot).toBeInTheDocument();
@@ -95,10 +88,5 @@ describe('App', () => {
 
     expect(screen.getByTestId('user-info')).toBeInTheDocument();
     expect(screen.getByTestId('user-table')).toBeInTheDocument();
-  });
-
-  it('should show connection status', () => {
-    render(<App />);
-    expect(screen.getByTestId('connection-status')).toBeInTheDocument();
   });
 });
