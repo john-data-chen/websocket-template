@@ -26,7 +26,13 @@ import { useState } from 'react';
 import UserForm from './UserForm';
 
 export default function UserTable() {
-  const [users, setUsers] = useState<User[]>(mockUsers);
+  // Convert mock user IDs to timestamps to ensure uniqueness
+  const [users, setUsers] = useState<User[]>(() =>
+    mockUsers.map((user) => ({
+      ...user,
+      id: Date.now() + Math.floor(Math.random() * 1000) // Add random number to ensure uniqueness in the same millisecond
+    }))
+  );
   const [isFormOpen, setIsFormOpen] = useState(false);
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [userToDelete, setUserToDelete] = useState<User | null>(null);
@@ -56,15 +62,16 @@ export default function UserTable() {
 
   const handleSubmit = (data: UserFormData) => {
     if (currentUser) {
-      // Update existing user
+      // Update existing user with new data but keep the timestamp ID
       setUsers(
         users.map((user) =>
           user.id === currentUser.id ? { ...data, id: currentUser.id } : user
         )
       );
     } else {
-      // Add new user with unique ID
-      const newId = Date.now();
+      // Add new user with a new timestamp-based ID
+      // Adding a random number to ensure uniqueness even if called in the same millisecond
+      const newId = Date.now() + Math.floor(Math.random() * 1000);
       setUsers([...users, { ...data, id: newId }]);
     }
     setIsFormOpen(false);
