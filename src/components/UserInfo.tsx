@@ -2,8 +2,8 @@ import { APP_TEXTS } from '@/constants/appTexts';
 import { Button } from './ui/button';
 
 interface UserInfoProps {
-  userName: string | null;
-  onLogout: () => void;
+  readonly userName: string | null;
+  readonly onLogout: () => void;
 }
 
 export function UserInfo({ userName, onLogout }: UserInfoProps) {

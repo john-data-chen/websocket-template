@@ -10,12 +10,21 @@ import UserTable from './components/UserTable';
 import { APP_TEXTS } from './constants/appTexts';
 import { WEBSOCKET_CONFIG } from './constants/websocket';
 import { useAuth } from './hooks/useAuth';
-import { useWebSocketConnection } from './stores/useWebSocketStore';
+import {
+  useWebSocketActions,
+  useWebSocketConnection
+} from './stores/useWebSocketStore';
 
 function App() {
   const { user, login, logout } = useAuth();
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
   const { isConnected: wsConnected } = useWebSocketConnection();
+  const { connect } = useWebSocketActions();
+
+  // Initialize WebSocket connection
+  useEffect(() => {
+    connect();
+  }, [connect]);
 
   // Show login dialog if user is not logged in
   useEffect(() => {
@@ -43,13 +52,7 @@ function App() {
           console.error('App error boundary caught:', error);
           // You can add error reporting here (e.g., Sentry, LogRocket)
         }}
-        fallback={({
-          error,
-          resetError
-        }: {
-          error: Error;
-          resetError: () => void;
-        }) => (
+        fallback={({ error, resetError }) => (
           <div className="p-4">
             <h2 className="text-xl font-semibold text-red-600 mb-2">
               Application Error
