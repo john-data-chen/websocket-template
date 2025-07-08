@@ -68,7 +68,7 @@ function App() {
           </div>
         )}
       >
-        <main className="min-h-screen bg-gray-50" data-testid="app-root">
+        <div className="min-h-screen bg-gray-50" data-testid="app-root">
           <header className="bg-white shadow-sm sticky top-0 z-10">
             <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
               <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
@@ -84,7 +84,7 @@ function App() {
               </div>
             </div>
           </header>
-          <main className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
+          <div className="container mx-auto px-3 sm:px-4 py-6 sm:py-8">
             {user ? (
               <div className="overflow-x-auto">
                 <UserTable />
@@ -109,7 +109,7 @@ function App() {
                 </div>
               </div>
             )}
-          </main>
+          </div>
 
           <UsernameDialog
             open={isLoginDialogOpen}
@@ -121,7 +121,7 @@ function App() {
               setIsLoginDialogOpen(false);
             }}
           />
-        </main>
+        </div>
       </ErrorBoundary>
     </>
   );
