@@ -94,7 +94,7 @@ describe('UserTable', () => {
     render(<UserTable />);
 
     // Find and click the first edit button
-    const editButtons = screen.getAllByTestId(/edit-user-\d+-button/);
+    const editButtons = screen.getAllByTestId(/edit-user-.+-button/);
     fireEvent.click(editButtons[0]);
 
     // Check if the form is opened
@@ -105,7 +105,7 @@ describe('UserTable', () => {
     render(<UserTable />);
 
     // Find and click the first delete button
-    const deleteButtons = screen.getAllByTestId(/delete-user-\d+-button/);
+    const deleteButtons = screen.getAllByTestId(/delete-user-.+-button/);
     fireEvent.click(deleteButtons[0]);
 
     // Check if the delete dialog is opened
@@ -128,7 +128,7 @@ describe('UserTable', () => {
     const userName = userRows[0].querySelector('td')?.textContent;
 
     // Open delete dialog
-    const deleteButtons = screen.getAllByTestId(/delete-user-\d+-button/);
+    const deleteButtons = screen.getAllByTestId(/delete-user-.+-button/);
     fireEvent.click(deleteButtons[0]);
 
     // Confirm deletion
