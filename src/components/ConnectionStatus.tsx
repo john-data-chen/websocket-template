@@ -1,7 +1,7 @@
 import { APP_TEXTS } from '@/constants/appTexts';
 
 interface ConnectionStatusProps {
-  isConnected: boolean;
+  readonly isConnected: boolean;
 }
 
 export function ConnectionStatus({ isConnected }: ConnectionStatusProps) {
