@@ -1,42 +1,32 @@
 import { Analytics } from '@vercel/analytics/react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { toast, Toaster } from 'sonner';
 import { Button } from './components/ui/button';
 import { UsernameDialog } from './components/UsernameDialog';
 import UserTable from './components/UserTable';
 import { APP_TEXTS } from './constants/appTexts';
 import { WEBSOCKET_CONFIG, WEBSOCKET_URL } from './constants/websocket';
+import { useWebSocket } from './hooks/useWebSocket';
 import { useSessionStore } from './stores/useSessionStore';
 
 function App() {
   const { user, logout } = useSessionStore();
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
-  const [wsConnected, setWsConnected] = useState(false);
   const initialCheckDone = useRef(false);
+  const errorShownRef = useRef<boolean>(false);
 
-  // check if user is logged in, if not, open login dialog
+  // Check if user is logged in, if not, open login dialog
   useEffect(() => {
     if (!initialCheckDone.current) {
       setIsLoginDialogOpen(!user);
       initialCheckDone.current = true;
     }
   }, [user]);
-  const errorShownRef = useRef<boolean>(false);
-  const reconnectAttempts = useRef<number>(0);
-  const reconnectTimer = useRef<NodeJS.Timeout | null>(null);
-  const ws = useRef<WebSocket | null>(null);
-  const pingInterval = useRef<NodeJS.Timeout | null>(null);
-  const isMounted = useRef<boolean>(true);
-  const {
-    MAX_RECONNECT_ATTEMPTS,
-    RECONNECT_DELAY,
-    TOAST_DURATION,
-    MAX_WAIT_TIME,
-    PING_INTERVAL
-  } = WEBSOCKET_CONFIG;
 
-  const showConnectionError = useCallback(() => {
-    if (!isMounted.current || errorShownRef.current) return;
+  const { TOAST_DURATION } = WEBSOCKET_CONFIG;
+
+  const showConnectionError = () => {
+    if (errorShownRef.current) return;
 
     errorShownRef.current = true;
     toast.error(APP_TEXTS.CONNECTION.ERROR.TITLE, {
@@ -44,114 +34,22 @@ function App() {
       duration: TOAST_DURATION,
       id: 'websocket-error'
     });
-  }, [TOAST_DURATION]);
+  };
 
-  const setupWebSocket = useCallback(() => {
-    if (!isMounted.current) return;
+  const handleReconnectFailed = () => {
+    showConnectionError();
+  };
 
-    // Clean up previous connection if exists
-    if (ws.current) {
-      ws.current.onopen = null;
-      ws.current.onerror = null;
-      ws.current.onclose = null;
-      ws.current.close();
-      ws.current = null;
-    }
-
-    try {
-      ws.current = new WebSocket(WEBSOCKET_URL);
-
-      ws.current.onopen = () => {
-        if (!isMounted.current) return;
-        console.log('WebSocket connected');
-        setWsConnected(true);
-        reconnectAttempts.current = 0;
-        errorShownRef.current = false;
-        if (reconnectTimer.current) {
-          clearTimeout(reconnectTimer.current);
-          reconnectTimer.current = null;
-        }
-        toast.dismiss('websocket-error');
-      };
-
-      ws.current.onerror = () => {
-        if (!isMounted.current) return;
-        console.error('WebSocket connection error');
-        setWsConnected(false);
-        showConnectionError();
-      };
-
-      ws.current.onclose = () => {
-        if (!isMounted.current) return;
-        console.log('WebSocket disconnected');
-        setWsConnected(false);
-
-        if (reconnectAttempts.current < MAX_RECONNECT_ATTEMPTS) {
-          const delay = Math.min(
-            RECONNECT_DELAY * Math.pow(2, reconnectAttempts.current),
-            MAX_WAIT_TIME // Max wait time
-          );
-
-          reconnectTimer.current = setTimeout(() => {
-            if (isMounted.current) {
-              reconnectAttempts.current++;
-              setupWebSocket();
-            }
-          }, delay);
-        } else {
-          showConnectionError();
-        }
-      };
-    } catch (error) {
-      console.error('WebSocket initialization error:', error);
-      setWsConnected(false);
-      showConnectionError();
-    }
-  }, [
-    showConnectionError,
-    MAX_RECONNECT_ATTEMPTS,
-    RECONNECT_DELAY,
-    MAX_WAIT_TIME
-  ]);
-
-  // Set up ping interval when connected
-  useEffect(() => {
-    if (!wsConnected) return;
-
-    pingInterval.current = setInterval(() => {
-      if (ws.current?.readyState === WebSocket.OPEN) {
-        ws.current.send(JSON.stringify({ type: 'ping' }));
-      }
-    }, PING_INTERVAL);
-
-    return () => {
-      if (pingInterval.current) {
-        clearInterval(pingInterval.current);
-      }
-    };
-  }, [wsConnected, PING_INTERVAL]);
-
-  // Initial WebSocket setup
-  useEffect(() => {
-    isMounted.current = true;
-    setupWebSocket();
-
-    return () => {
-      isMounted.current = false;
-      if (ws.current) {
-        ws.current.close();
-        ws.current = null;
-      }
-      if (reconnectTimer.current) {
-        clearTimeout(reconnectTimer.current);
-        reconnectTimer.current = null;
-      }
-      if (pingInterval.current) {
-        clearInterval(pingInterval.current);
-        pingInterval.current = null;
-      }
-    };
-  }, [setupWebSocket]);
+  const { isConnected: wsConnected } = useWebSocket(WEBSOCKET_URL, {
+    maxReconnectAttempts: WEBSOCKET_CONFIG.MAX_RECONNECT_ATTEMPTS,
+    reconnectDelay: WEBSOCKET_CONFIG.RECONNECT_DELAY,
+    maxWaitTime: WEBSOCKET_CONFIG.MAX_WAIT_TIME,
+    pingInterval: WEBSOCKET_CONFIG.PING_INTERVAL,
+    onError: (error) => {
+      console.error('WebSocket error:', error);
+    },
+    onReconnectFailed: handleReconnectFailed
+  });
 
   return (
     <>
