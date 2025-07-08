@@ -1,5 +1,5 @@
 import { Analytics } from '@vercel/analytics/react';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { toast, Toaster } from 'sonner';
 import { ConnectionStatus } from './components/ConnectionStatus';
 import { ErrorBoundary } from './components/ErrorBoundary';
@@ -8,14 +8,14 @@ import { UserInfo } from './components/UserInfo';
 import { UsernameDialog } from './components/UsernameDialog';
 import UserTable from './components/UserTable';
 import { APP_TEXTS } from './constants/appTexts';
-import { WEBSOCKET_CONFIG, WEBSOCKET_URL } from './constants/websocket';
+import { WEBSOCKET_CONFIG } from './constants/websocket';
 import { useAuth } from './hooks/useAuth';
-import { useWebSocket } from './hooks/useWebSocket';
+import { useWebSocketConnection } from './stores/useWebSocketStore';
 
 function App() {
   const { user, login, logout } = useAuth();
   const [isLoginDialogOpen, setIsLoginDialogOpen] = useState(false);
-  const errorShownRef = useRef<boolean>(false);
+  const { isConnected: wsConnected } = useWebSocketConnection();
 
   // Show login dialog if user is not logged in
   useEffect(() => {
@@ -24,38 +24,20 @@ function App() {
     }
   }, [user]);
 
-  const { TOAST_DURATION } = WEBSOCKET_CONFIG;
-
-  const showConnectionError = () => {
-    if (errorShownRef.current) return;
-
-    errorShownRef.current = true;
-    toast.error(APP_TEXTS.CONNECTION.ERROR.TITLE, {
-      description: APP_TEXTS.CONNECTION.ERROR.DESCRIPTION,
-      duration: TOAST_DURATION,
-      id: 'websocket-error'
-    });
-  };
-
-  const handleReconnectFailed = () => {
-    showConnectionError();
-  };
-
-  const { isConnected: wsConnected } = useWebSocket(WEBSOCKET_URL, {
-    maxReconnectAttempts: WEBSOCKET_CONFIG.MAX_RECONNECT_ATTEMPTS,
-    reconnectDelay: WEBSOCKET_CONFIG.RECONNECT_DELAY,
-    maxWaitTime: WEBSOCKET_CONFIG.MAX_WAIT_TIME,
-    pingInterval: WEBSOCKET_CONFIG.PING_INTERVAL,
-    onError: (error) => {
-      console.error('WebSocket error:', error);
-    },
-    onReconnectFailed: handleReconnectFailed
-  });
+  // Connection status effect
+  useEffect(() => {
+    if (!wsConnected) {
+      toast.error(APP_TEXTS.CONNECTION.ERROR.TITLE, {
+        description: APP_TEXTS.CONNECTION.ERROR.DESCRIPTION,
+        duration: WEBSOCKET_CONFIG.TOAST_DURATION
+      });
+    }
+  }, [wsConnected]);
 
   return (
     <>
       <Analytics />
-      <Toaster position="top-center" richColors />
+      <Toaster position="bottom-right" richColors />
       <ErrorBoundary
         onError={(error) => {
           console.error('App error boundary caught:', error);
