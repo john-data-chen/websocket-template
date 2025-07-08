@@ -184,21 +184,26 @@ function App() {
               </div>
               {user && (
                 <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto justify-between sm:justify-end">
-                  <span className="text-xs sm:text-sm bg-blue-50 text-blue-700 px-2 sm:px-3 py-1 rounded-full truncate max-w-[180px] sm:max-w-none">
+                  <span
+                    className="text-xs sm:text-sm bg-blue-50 text-blue-700 px-2 sm:px-3 py-1 rounded-full truncate max-w-[180px] sm:max-w-none"
+                    data-testid="welcome-text"
+                    aria-label="Welcome"
+                  >
                     {APP_TEXTS.HEADER.WELCOME.replace(
                       '{{name}}',
                       user.name || ''
                     )}
                   </span>
-                  <button
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="ml-2 border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
                     onClick={logout}
-                    className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 px-2 py-1 hover:bg-blue-50 rounded transition-colors"
                     data-testid="logout-button"
                     aria-label="Logout"
-                    type="button"
                   >
                     {APP_TEXTS.HEADER.LOGOUT}
-                  </button>
+                  </Button>
                 </div>
               )}
             </div>
@@ -224,7 +229,7 @@ function App() {
                   onClick={() => setIsLoginDialogOpen(true)}
                   className="w-full sm:w-auto"
                 >
-                  登入
+                  {APP_TEXTS.LOGIN.BUTTON}
                 </Button>
               </div>
             </div>
