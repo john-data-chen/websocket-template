@@ -68,7 +68,6 @@ describe('useWebSocket', () => {
   const mockOnMessage = vi.fn();
   const mockOnOpen = vi.fn();
   const mockOnClose = vi.fn();
-  const mockOnError = vi.fn();
 
   const TEST_URL = 'ws://test-websocket';
 
@@ -163,20 +162,6 @@ describe('useWebSocket', () => {
     });
 
     expect(mockOnClose).toHaveBeenCalled();
-  });
-
-  it('should handle WebSocket error event', () => {
-    renderHook(() =>
-      useWebSocket(TEST_URL, {
-        onError: mockOnError
-      })
-    );
-
-    act(() => {
-      mockWebSocket._triggerError();
-    });
-
-    expect(mockOnError).toHaveBeenCalled();
   });
 
   it('should wait for connection to be established before sending messages', async () => {

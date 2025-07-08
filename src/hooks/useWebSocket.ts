@@ -10,7 +10,6 @@ export interface WebSocketOptions {
   onMessage?: (message: WebSocketMessage) => void;
   onOpen?: () => void;
   onClose?: () => void;
-  onError?: (error: Event) => void;
   onReconnectFailed?: () => void;
 }
 
@@ -19,7 +18,6 @@ export function useWebSocket(url: string, options: WebSocketOptions = {}) {
     onMessage,
     onOpen,
     onClose,
-    onError,
     onReconnectFailed,
     maxReconnectAttempts = WEBSOCKET_CONFIG.MAX_RECONNECT_ATTEMPTS,
     reconnectDelay = WEBSOCKET_CONFIG.RECONNECT_DELAY,
@@ -39,7 +37,6 @@ export function useWebSocket(url: string, options: WebSocketOptions = {}) {
     onMessage,
     onOpen,
     onClose,
-    onError,
     onReconnectFailed
   });
 
@@ -49,10 +46,9 @@ export function useWebSocket(url: string, options: WebSocketOptions = {}) {
       onMessage,
       onOpen,
       onClose,
-      onError,
       onReconnectFailed
     };
-  }, [onMessage, onOpen, onClose, onError, onReconnectFailed]);
+  }, [onMessage, onOpen, onClose, onReconnectFailed]);
 
   const clearTimers = useCallback(() => {
     if (reconnectTimer.current) {
@@ -71,7 +67,6 @@ export function useWebSocket(url: string, options: WebSocketOptions = {}) {
     if (ws.current) {
       ws.current.onopen = null;
       ws.current.onclose = null;
-      ws.current.onerror = null;
       ws.current.onmessage = null;
       ws.current.close();
     }
@@ -144,7 +139,6 @@ export function useWebSocket(url: string, options: WebSocketOptions = {}) {
         if (!isMounted.current) return;
 
         console.error('WebSocket error:', error);
-        callbacksRef.current.onError?.(error);
       };
     } catch (error) {
       console.error('Error creating WebSocket:', error);
