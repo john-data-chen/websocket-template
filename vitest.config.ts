@@ -1,9 +1,26 @@
+import tailwindcss from '@tailwindcss/vite';
 import react from '@vitejs/plugin-react-swc';
-import path from 'path';
+import { resolve } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import { defineConfig } from 'vitest/config';
 
+const __dirname = fileURLToPath(new URL('.', import.meta.url));
+
+// 使用 Vite 的配置
+const viteConfig = {
+  plugins: [react(), tailwindcss()],
+  resolve: {
+    alias: {
+      '@': resolve(__dirname, 'src')
+    }
+  },
+  esbuild: {
+    drop: ['console', 'debugger'] as ('console' | 'debugger')[]
+  }
+};
+
 export default defineConfig({
-  plugins: [react()],
+  ...viteConfig,
   test: {
     environment: 'jsdom',
     exclude: ['**/node_modules/**', '__tests__/e2e/**'],
@@ -21,11 +38,6 @@ export default defineConfig({
         'src/components/ui/**/*',
         'src/constants/**/*'
       ]
-    }
-  },
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src')
     }
   }
 });
