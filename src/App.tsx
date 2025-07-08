@@ -1,14 +1,14 @@
 import { Analytics } from '@vercel/analytics/react';
 import { useEffect, useState } from 'react';
-import { toast, Toaster } from 'sonner';
+import { Toaster } from 'sonner';
 import { ConnectionStatus } from './components/ConnectionStatus';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { ErrorFallback } from './components/ErrorFallback';
 import { Button } from './components/ui/button';
 import { UserInfo } from './components/UserInfo';
 import { UsernameDialog } from './components/UsernameDialog';
 import UserTable from './components/UserTable';
 import { APP_TEXTS } from './constants/appTexts';
-import { WEBSOCKET_CONFIG } from './constants/websocket';
 import { useAuth } from './hooks/useAuth';
 import {
   useWebSocketActions,
@@ -32,17 +32,6 @@ function App() {
       setIsLoginDialogOpen(true);
     }
   }, [user]);
-
-  // Connection status effect
-  useEffect(() => {
-    if (!wsConnected) {
-      toast.error(APP_TEXTS.CONNECTION.ERROR.TITLE, {
-        description: APP_TEXTS.CONNECTION.ERROR.DESCRIPTION,
-        duration: WEBSOCKET_CONFIG.TOAST_DURATION
-      });
-    }
-  }, [wsConnected]);
-
   return (
     <>
       <Analytics />
@@ -52,24 +41,7 @@ function App() {
           console.error('App error boundary caught:', error);
           // You can add error reporting here (e.g., Sentry, LogRocket)
         }}
-        fallback={({ error, resetError }) => (
-          <div className="p-4">
-            <h2 className="text-xl font-semibold text-red-600 mb-2">
-              Application Error
-            </h2>
-            <p className="mb-4">
-              {error?.message ||
-                'An unexpected error occurred in the application.'}
-            </p>
-            <Button
-              onClick={resetError}
-              variant="outline"
-              className="w-full sm:w-auto"
-            >
-              Reload Application
-            </Button>
-          </div>
-        )}
+        fallback={ErrorFallback}
       >
         <div className="min-h-screen bg-gray-50" data-testid="app-root">
           <header className="bg-white shadow-sm sticky top-0 z-10">
