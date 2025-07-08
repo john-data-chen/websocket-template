@@ -76,11 +76,16 @@ export default function UserForm({
         message.type === 'editing_status_update' &&
         user?.id === message.payload.recordId
       ) {
-        const otherUsers = message.payload.users.filter(
-          (u: string) => u !== currentUser?.name
+        // Ensure unique user names and exclude current user
+        const uniqueUsers = Array.from(new Set(message.payload.users));
+        const otherUsers = uniqueUsers.filter(
+          (userName: string) =>
+            userName !== currentUser?.name && userName.trim() !== ''
         );
-        console.log('Other users editing:', otherUsers);
 
+        console.log('Other users editing (unique):', otherUsers);
+
+        // Ensure no duplicate keys by using index as part of the key if needed
         setEditingUsers(otherUsers);
 
         // Show or update Toast notification
