@@ -1,6 +1,4 @@
-import { APP_TEXTS } from '@/constants/appTexts';
 import { WEBSOCKET_CONFIG, WEBSOCKET_URL } from '@/constants/websocket';
-import { toast } from 'sonner';
 import { create } from 'zustand';
 
 interface WebSocketState {
@@ -62,10 +60,6 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
 
       ws.onerror = (error) => {
         console.error('WebSocket error:', error);
-        toast.error(APP_TEXTS.CONNECTION.ERROR.TITLE, {
-          description: APP_TEXTS.CONNECTION.ERROR.DESCRIPTION,
-          duration: WEBSOCKET_CONFIG.TOAST_DURATION
-        });
       };
 
       ws.onmessage = (event) => {

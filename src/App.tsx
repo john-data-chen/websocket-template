@@ -1,6 +1,6 @@
 import { Analytics } from '@vercel/analytics/react';
 import { useEffect, useState } from 'react';
-import { toast, Toaster } from 'sonner';
+import { Toaster } from 'sonner';
 import { ConnectionStatus } from './components/ConnectionStatus';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ErrorFallback } from './components/ErrorFallback';
@@ -9,7 +9,6 @@ import { UserInfo } from './components/UserInfo';
 import { UsernameDialog } from './components/UsernameDialog';
 import UserTable from './components/UserTable';
 import { APP_TEXTS } from './constants/appTexts';
-import { WEBSOCKET_CONFIG } from './constants/websocket';
 import { useAuth } from './hooks/useAuth';
 import {
   useWebSocketActions,
@@ -33,17 +32,6 @@ function App() {
       setIsLoginDialogOpen(true);
     }
   }, [user]);
-
-  // Connection status effect
-  useEffect(() => {
-    if (!wsConnected) {
-      toast.error(APP_TEXTS.CONNECTION.ERROR.TITLE, {
-        description: APP_TEXTS.CONNECTION.ERROR.DESCRIPTION,
-        duration: WEBSOCKET_CONFIG.TOAST_DURATION
-      });
-    }
-  }, [wsConnected]);
-
   return (
     <>
       <Analytics />
