@@ -3,6 +3,7 @@ import { useEffect, useState } from 'react';
 import { toast, Toaster } from 'sonner';
 import { ConnectionStatus } from './components/ConnectionStatus';
 import { ErrorBoundary } from './components/ErrorBoundary';
+import { ErrorFallback } from './components/ErrorFallback';
 import { Button } from './components/ui/button';
 import { UserInfo } from './components/UserInfo';
 import { UsernameDialog } from './components/UsernameDialog';
@@ -52,24 +53,7 @@ function App() {
           console.error('App error boundary caught:', error);
           // You can add error reporting here (e.g., Sentry, LogRocket)
         }}
-        fallback={({ error, resetError }) => (
-          <div className="p-4">
-            <h2 className="text-xl font-semibold text-red-600 mb-2">
-              Application Error
-            </h2>
-            <p className="mb-4">
-              {error?.message ||
-                'An unexpected error occurred in the application.'}
-            </p>
-            <Button
-              onClick={resetError}
-              variant="outline"
-              className="w-full sm:w-auto"
-            >
-              Reload Application
-            </Button>
-          </div>
-        )}
+        fallback={ErrorFallback}
       >
         <div className="min-h-screen bg-gray-50" data-testid="app-root">
           <header className="bg-white shadow-sm sticky top-0 z-10">
