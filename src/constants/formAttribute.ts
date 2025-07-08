@@ -1,4 +1,4 @@
-export const FORM_TEXTS = {
+export const FORM_ATTRIBUTES = {
   // Form Titles
   EDIT_USER_TITLE: '編輯使用者',
   ADD_USER_TITLE: '新增使用者',
@@ -49,10 +49,15 @@ export const FORM_TEXTS = {
     EDITING_USERS: '正在編輯的使⽤者：'
   },
 
+  // Performance
+  DEBOUNCE: {
+    DRAFT_SAVE: 3000 // auto save draft every 3 seconds
+  },
+
   // Default Values
   DEFAULTS: {
     ANONYMOUS: 'anonymous'
   }
 } as const;
 
-export type FormTexts = typeof FORM_TEXTS;
+export type FormAttributes = typeof FORM_ATTRIBUTES;
