@@ -264,7 +264,7 @@ export default function UserForm({
         toastIdRef.current = null;
       }
     };
-  }, [open, user?.id, currentUser?.name, sendMessage]);
+  }, [open, user?.id, currentUser?.name, sendMessage, debouncedSaveDraft]);
 
   // When the form opens, reset the form and load the draft
   useEffect(() => {
