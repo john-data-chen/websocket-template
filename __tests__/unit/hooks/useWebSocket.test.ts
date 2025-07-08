@@ -1,5 +1,5 @@
-import type { WebSocketMessage } from '@/constants/websocket';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import type { WebSocketMessage } from '@/types/websocket';
 import { act, renderHook } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
