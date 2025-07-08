@@ -28,6 +28,8 @@ This project showcases a production-ready SPA architecture built with React and 
 - Automated CI/CD Pipeline (GitHub Actions, SonarQube, Codecov, Vercel): Establishes a streamlined, production-ready deployment process, ensuring rapid, reliable, and high-quality releases.
 - Live Demo Deployment (Vercel): Provides immediate access to a functional application, showcasing practical deployment skills.
 
+<img src="./public/screenshots/sonarqube screenshot.png" alt="SonarQube Rating" width="470" height="145">
+
 ---
 
 ## 🛠️ Technical Decisions
@@ -89,6 +91,9 @@ pnpm build
 
 - Unit Tests: Focused on critical store logic, complex form validations, and isolated component behaviors, ensuring granular code reliability.
 - Coverage: Maintained above 80% (verified via `vitest run --coverage`), reflecting a commitment to robust code coverage without sacrificing test quality.
+
+<img src="./public/screenshots/test coverage.png" alt="Coverage" width="723" height="472">
+
 - E2E Tests: Critical user flows, such as the Login modal, are validated end-to-end using Playwright, simulating real user interactions to guarantee system integrity.
 - Cross-browser Testing Strategy: Ensures consistent functionality and user experience across a carefully selected range of desktop and mobile browsers based on market share, mitigating compatibility issues.
 
