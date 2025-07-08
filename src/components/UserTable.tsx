@@ -23,14 +23,15 @@ import { TABLE_TEXTS } from '@/constants/tableTexts';
 import type { User } from '@/types/user';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
+import { v4 as uuidv4 } from 'uuid';
 import UserForm from './UserForm';
 
 export default function UserTable() {
-  // Convert mock user IDs to timestamps to ensure uniqueness
+  // Generate unique IDs for mock users using UUID
   const [users, setUsers] = useState<User[]>(() =>
     mockUsers.map((user) => ({
       ...user,
-      id: Date.now() + Math.floor(Math.random() * 1000) // Add random number to ensure uniqueness in the same millisecond
+      id: uuidv4() // Generate a unique ID using UUID v4
     }))
   );
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -69,10 +70,8 @@ export default function UserTable() {
         )
       );
     } else {
-      // Add new user with a new timestamp-based ID
-      // Adding a random number to ensure uniqueness even if called in the same millisecond
-      const newId = Date.now() + Math.floor(Math.random() * 1000);
-      setUsers([...users, { ...data, id: newId }]);
+      // Add new user with a new UUID
+      setUsers([...users, { ...data, id: uuidv4() }]);
     }
     setIsFormOpen(false);
   };
