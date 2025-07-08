@@ -11,8 +11,10 @@ export const USER_LIST = [
     name: 'Zack Lin',
     email: 'z.lin@commeet.co',
     isActive: false,
-    description: '⼀位熱愛後端開發的資深軟體⼯程師。'
+    description: '⼀位熱愛後端開發的資深軟體⼯工程師。'
   }
 ];
 
 export const TEST_USER = 'Mark.S';
+export const TEST_EMAIL = 'mark.s@commeet.co';
+export const TEST_DESCRIPTION = '⼀位熱愛前端開發的資深軟體⼯⼯程師。';
