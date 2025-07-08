@@ -66,7 +66,7 @@ export default function UserTable() {
       // Add new user
       const newUser: User = {
         ...data,
-        id: Math.max(0, ...users.map((u) => u.id)) + 1
+        id: users.length > 0 ? Math.max(...users.map((u) => u.id)) + 1 : 1
       };
       setUsers([...users, newUser]);
     }
