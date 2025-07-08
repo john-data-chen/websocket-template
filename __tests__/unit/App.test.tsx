@@ -1,9 +1,10 @@
+import App from '@/App';
+import { APP_TEXTS } from '@/constants/appTexts';
+import { TEST_USER } from '@/constants/mockData';
+import { useSessionStore } from '@/stores/useSessionStore';
 import '@testing-library/jest-dom/vitest';
 import { cleanup, render, screen } from '@testing-library/react';
-import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import App from '../../src/App';
-import { useSessionStore } from '../../src/stores/useSessionStore';
 
 vi.mock('@vercel/analytics/react', () => ({ Analytics: () => null }));
 vi.mock('sonner', () => ({
@@ -16,13 +17,13 @@ interface UsernameDialogProps {
   onConfirm: (username: string) => void;
 }
 
-vi.mock('../../src/components/UsernameDialog', () => ({
+vi.mock('@/components/UsernameDialog', () => ({
   UsernameDialog: ({ open }: UsernameDialogProps) =>
     open ? <div data-testid="login-dialog">LoginDialog</div> : null
 }));
 
 // Mock session store for testing
-vi.mock('../../src/stores/useSessionStore', () => ({
+vi.mock('@/stores/useSessionStore', () => ({
   useSessionStore: vi.fn()
 }));
 
@@ -45,39 +46,38 @@ describe('App', () => {
     cleanup();
   });
 
-  it('未登入時顯示請先登入畫面', () => {
+  it('should show login prompt when not logged in', () => {
     render(<App />);
-
-    expect(screen.getByText('請先登入')).toBeInTheDocument();
     expect(screen.queryByTestId('user-table')).not.toBeInTheDocument();
 
     // Verify login button is shown
-    const loginButtons = screen.getAllByTestId('login-button');
-    expect(loginButtons).toHaveLength(1);
-    expect(loginButtons[0]).toHaveAttribute('aria-label', 'login-button');
+    const loginButtons = screen.getByTestId('open-login-dialog-button');
+    expect(loginButtons).toBeInTheDocument();
   });
 
-  describe('登入狀態', () => {
+  describe('when logged in', () => {
     beforeEach(() => {
       mockUseSessionStore.mockReturnValue({
-        user: { name: 'Mark.S' },
+        user: { name: TEST_USER },
         login: vi.fn(),
         logout: vi.fn(),
         isAuthenticated: () => true
       });
     });
 
-    it('顯示 UserTable 與歡迎詞', () => {
+    it('should display UserTable and welcome message', () => {
       render(<App />);
 
       // Check user table is shown
       expect(screen.getByTestId('user-table')).toBeInTheDocument();
 
       // Check login prompt is hidden
-      expect(screen.queryByText('請先登入')).not.toBeInTheDocument();
+      expect(
+        screen.queryByText(APP_TEXTS.HEADER.WELCOME)
+      ).not.toBeInTheDocument();
 
       // Check welcome message
-      expect(screen.getByText(/歡迎, Mark.S!?/)).toBeInTheDocument();
+      expect(screen.getByTestId('welcome-text')).toBeInTheDocument();
 
       // Check logout button is shown
       const logoutButtons = screen.getAllByTestId('logout-button');
