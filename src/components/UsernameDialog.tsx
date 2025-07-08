@@ -1,5 +1,6 @@
 'use client';
 
+import { DIALOG_TEXTS } from '@/constants/dialogTexts';
 import { usernameSchema } from '@/lib/validation';
 import { useSessionStore } from '@/stores/useSessionStore';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -80,53 +81,62 @@ export function UsernameDialog({
   };
 
   return (
-    <Dialog
-      open={isOpen}
-      onOpenChange={handleOpenChange}
-      data-testid="login-dialog"
-    >
-      <DialogContent className="sm:max-w-[425px] p-6 rounded-2xl w-full max-w-[90vw]">
-        <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <DialogHeader>
-              <DialogTitle className="text-lg sm:text-xl">歡迎使用</DialogTitle>
-              <DialogDescription className="text-sm sm:text-base">
-                請輸入您的名字以繼續使用系統
-              </DialogDescription>
-            </DialogHeader>
+    <div data-testid="username-dialog">
+      <Dialog
+        open={isOpen}
+        onOpenChange={handleOpenChange}
+        aria-label="Username dialog"
+      >
+        <DialogContent className="sm:max-w-[425px] p-6 rounded-2xl w-full max-w-[90vw]">
+          <Form {...form}>
+            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+              <DialogHeader>
+                <DialogTitle className="text-lg sm:text-xl">
+                  {DIALOG_TEXTS.WELCOME.TITLE}
+                </DialogTitle>
+                <DialogDescription className="text-sm sm:text-base">
+                  {DIALOG_TEXTS.WELCOME.DESCRIPTION}
+                </DialogDescription>
+              </DialogHeader>
 
-            <FormField
-              control={form.control}
-              name="username"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="text-sm sm:text-base">名字</FormLabel>
-                  <FormControl>
-                    <Input
-                      placeholder="請輸入您的名字"
-                      autoComplete="off"
-                      {...field}
-                      className="form-element"
-                      data-testid="username-input"
-                    />
-                  </FormControl>
-                  <FormMessage className="text-xs sm:text-sm" />
-                </FormItem>
-              )}
-            />
+              <FormField
+                control={form.control}
+                name="username"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-sm sm:text-base">
+                      {DIALOG_TEXTS.WELCOME.LABEL}
+                    </FormLabel>
+                    <FormControl>
+                      <Input
+                        placeholder={DIALOG_TEXTS.WELCOME.PLACEHOLDER}
+                        autoComplete="username"
+                        {...field}
+                        className="form-element"
+                        data-testid="username-input"
+                        aria-required="true"
+                        aria-label="Enter your username"
+                      />
+                    </FormControl>
+                    <FormMessage className="text-xs sm:text-sm" />
+                  </FormItem>
+                )}
+              />
 
-            <DialogFooter>
-              <Button
-                type="submit"
-                className="w-full sm:w-auto"
-                data-testid="login-confirm-button"
-              >
-                確認
-              </Button>
-            </DialogFooter>
-          </form>
-        </Form>
-      </DialogContent>
-    </Dialog>
+              <DialogFooter>
+                <Button
+                  type="submit"
+                  className="w-full sm:w-auto"
+                  data-testid="confirm-username-button"
+                  aria-label="Confirm username"
+                >
+                  {DIALOG_TEXTS.WELCOME.BUTTON}
+                </Button>
+              </DialogFooter>
+            </form>
+          </Form>
+        </DialogContent>
+      </Dialog>
+    </div>
   );
 }

@@ -4,6 +4,7 @@ import { toast, Toaster } from 'sonner';
 import { Button } from './components/ui/button';
 import { UsernameDialog } from './components/UsernameDialog';
 import UserTable from './components/UserTable';
+import { APP_TEXTS } from './constants/appTexts';
 import { WEBSOCKET_URL } from './constants/websocket';
 import { useSessionStore } from './stores/useSessionStore';
 
@@ -34,8 +35,8 @@ function App() {
     if (!isMounted.current || errorShownRef.current) return;
 
     errorShownRef.current = true;
-    toast.error('無法連接到即時協作伺服器', {
-      description: '部分即時協作功能可能無法正常運作',
+    toast.error(APP_TEXTS.CONNECTION.ERROR.TITLE, {
+      description: APP_TEXTS.CONNECTION.ERROR.DESCRIPTION,
       duration: 5000,
       id: 'websocket-error'
     });
@@ -147,39 +148,62 @@ function App() {
     <>
       <Analytics />
       <Toaster position="bottom-right" richColors />
-      <div className="min-h-screen bg-gray-50" data-testid="app-root">
+      <div
+        className="min-h-screen bg-gray-50"
+        data-testid="app-root"
+        role="main"
+      >
         <header className="bg-white shadow-sm sticky top-0 z-10">
           <div className="container mx-auto px-3 sm:px-4 py-3 sm:py-4">
             <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-2 sm:space-y-0">
               <div className="flex flex-col sm:flex-row sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
                 <div className="flex items-center space-x-3">
                   <h1 className="text-lg sm:text-xl font-semibold text-gray-900 truncate">
-                    用戶管理系統
+                    {APP_TEXTS.HEADER.TITLE}
                   </h1>
-                  <div className="flex items-center">
+                  <div
+                    className="flex items-center"
+                    role="status"
+                    aria-live="polite"
+                  >
                     <span
                       className={`h-2.5 w-2.5 sm:h-3 sm:w-3 rounded-full ${wsConnected ? 'bg-green-500' : 'bg-red-500'} mr-1.5 sm:mr-2`}
                       aria-hidden="true"
+                      data-testid="connection-status-indicator"
                     />
-                    <span className="text-xs sm:text-sm text-gray-500">
-                      {wsConnected ? '已連接' : '離線'}
+                    <span
+                      className="text-xs sm:text-sm text-gray-500"
+                      data-testid="connection-status-text"
+                    >
+                      {wsConnected
+                        ? APP_TEXTS.CONNECTION.CONNECTED
+                        : APP_TEXTS.CONNECTION.OFFLINE}
                     </span>
                   </div>
                 </div>
               </div>
               {user && (
                 <div className="flex items-center space-x-2 sm:space-x-4 w-full sm:w-auto justify-between sm:justify-end">
-                  <span className="text-xs sm:text-sm bg-blue-50 text-blue-700 px-2 sm:px-3 py-1 rounded-full truncate max-w-[180px] sm:max-w-none">
-                    歡迎, {user.name}!
-                  </span>
-                  <button
-                    onClick={logout}
-                    className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 px-2 py-1 hover:bg-blue-50 rounded transition-colors"
-                    data-testid="logout-button"
-                    aria-label="logout-button"
+                  <span
+                    className="text-xs sm:text-sm bg-blue-50 text-blue-700 px-2 sm:px-3 py-1 rounded-full truncate max-w-[180px] sm:max-w-none"
+                    data-testid="welcome-text"
+                    aria-label="Welcome"
                   >
-                    登出
-                  </button>
+                    {APP_TEXTS.HEADER.WELCOME.replace(
+                      '{{name}}',
+                      user.name || ''
+                    )}
+                  </span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="ml-2 border-red-500 text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors"
+                    onClick={logout}
+                    data-testid="logout-button"
+                    aria-label="Logout"
+                  >
+                    {APP_TEXTS.HEADER.LOGOUT}
+                  </Button>
                 </div>
               )}
             </div>
@@ -194,18 +218,18 @@ function App() {
             <div className="flex flex-col justify-center items-center min-h-[calc(100vh-180px)] sm:min-h-[60vh] p-4">
               <div className="text-center max-w-md w-full">
                 <h2 className="text-xl sm:text-2xl font-semibold text-gray-800 mb-3 sm:mb-4">
-                  請先登入
+                  {APP_TEXTS.LOGIN.REQUIRED}
                 </h2>
                 <p className="text-sm sm:text-base text-gray-600 mb-6">
-                  您需要登入才能使用此系統
+                  {APP_TEXTS.LOGIN.PROMPT}
                 </p>
                 <Button
-                  aria-label="login-button"
-                  data-testid="login-button"
+                  aria-label="Open login dialog"
+                  data-testid="open-login-dialog-button"
                   onClick={() => setIsLoginDialogOpen(true)}
-                  className="w-full sm:w-auto px-6 py-2"
+                  className="w-full sm:w-auto"
                 >
-                  登入
+                  {APP_TEXTS.LOGIN.BUTTON}
                 </Button>
               </div>
             </div>

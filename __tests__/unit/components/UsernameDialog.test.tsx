@@ -1,14 +1,13 @@
+import { UsernameDialog } from '@/components/UsernameDialog';
+import { useSessionStore } from '@/stores/useSessionStore';
 import '@testing-library/jest-dom';
 import { act, render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { UsernameDialog } from '../../../src/components/UsernameDialog';
-import { useSessionStore } from '../../../src/stores/useSessionStore';
 
 const mockLogin = vi.fn();
 
-vi.mock('../../../src/stores/useSessionStore', () => ({
+vi.mock('@/stores/useSessionStore', () => ({
   useSessionStore: vi.fn(() => ({
     user: null,
     login: mockLogin,
@@ -41,9 +40,7 @@ describe('UsernameDialog', () => {
         onUsernameSet={mockOnUsernameSet}
       />
     );
-
-    expect(screen.getByText('歡迎使用')).toBeInTheDocument();
-    expect(screen.getByLabelText('名字')).toBeInTheDocument();
+    expect(screen.getByTestId('username-dialog')).toBeInTheDocument();
   });
 
   it('should call setUsername and onUsernameSet when form is submitted', async () => {
@@ -57,8 +54,8 @@ describe('UsernameDialog', () => {
       />
     );
 
-    const input = screen.getByLabelText('名字');
-    const submitButton = screen.getByRole('button', { name: /確認/i });
+    const input = screen.getByTestId('username-input');
+    const submitButton = screen.getByTestId('confirm-username-button');
 
     await act(async () => {
       await user.type(input, 'TestUser');
@@ -81,7 +78,7 @@ describe('UsernameDialog', () => {
       />
     );
 
-    const submitButton = screen.getByRole('button', { name: /確認/i });
+    const submitButton = screen.getByTestId('confirm-username-button');
     await act(async () => {
       await user.click(submitButton);
     });

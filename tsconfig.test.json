@@ -1,8 +1,10 @@
 {
-  "extends": "./tsconfig.app.json",
+  "extends": "./tsconfig.json",
   "compilerOptions": {
-    "types": ["node", "jsdom", "@testing-library/jest-dom"],
-    "jsx": "react-jsx"
+    "types": ["node", "jsdom", "@testing-library/jest-dom", "vitest/globals"],
+    "jsx": "react-jsx",
+    "moduleResolution": "node",
+    "esModuleInterop": true
   },
   "include": [
     "src/**/*.ts",

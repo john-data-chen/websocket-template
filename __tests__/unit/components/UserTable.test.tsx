@@ -1,18 +1,20 @@
+import UserTable from '@/components/UserTable';
+import { TEST_DESCRIPTION, TEST_EMAIL, TEST_USER } from '@/constants/mockData';
+import { TABLE_TEXTS } from '@/constants/tableTexts';
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import React from 'react';
-import { describe, expect, it, vi } from 'vitest';
-import UserTable from '../../../src/components/UserTable';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-// Mock UserForm (避免表單內部邏輯影響)
+// Mock UserForm component
 vi.mock('@/components/UserForm', () => ({
   default: (props: Record<string, unknown>) =>
     props.open ? (
       <div data-testid="user-form">
         <button
           onClick={() => (props.onOpenChange as (open: boolean) => void)(false)}
+          data-testid="close-form-button"
         >
-          關閉
+          {TABLE_TEXTS.BUTTONS.CANCEL}
         </button>
         <button
           onClick={() =>
@@ -24,12 +26,13 @@ vi.mock('@/components/UserForm', () => ({
                 description: string;
               }) => void
             )({
-              name: '新用戶',
-              email: 'test@a.com',
+              name: TEST_USER,
+              email: TEST_EMAIL,
               isActive: true,
-              description: 'desc'
+              description: TEST_DESCRIPTION
             })
           }
+          data-testid="submit-form-button"
         >
           送出
         </button>
@@ -38,60 +41,102 @@ vi.mock('@/components/UserForm', () => ({
 }));
 
 describe('UserTable', () => {
-  it('renders user table and users', () => {
+  beforeEach(() => {
+    // Clear all mocks before each test
+    vi.clearAllMocks();
+  });
+
+  it('renders user table with correct title and headers', () => {
     render(<UserTable />);
-    expect(screen.getByText('使用者管理')).toBeInTheDocument();
+
+    // Check if the table container and title are rendered
+    expect(screen.getByTestId('user-table-container')).toBeInTheDocument();
+    expect(screen.getByText(TABLE_TEXTS.PAGE_TITLE)).toBeInTheDocument();
+
+    // Check if all table headers are rendered
+    Object.values(TABLE_TEXTS.HEADERS).forEach((header) => {
+      expect(screen.getByText(header)).toBeInTheDocument();
+    });
+
+    // Check if status badges are rendered
     expect(
-      screen.getAllByText('啟用').length + screen.getAllByText('停用').length
+      screen.getAllByText(TABLE_TEXTS.STATUS.ACTIVE).length +
+        screen.getAllByText(TABLE_TEXTS.STATUS.INACTIVE).length
     ).toBeGreaterThan(0);
   });
 
-  it('can open and close add user form', () => {
+  it('can open and close the add user form', () => {
     render(<UserTable />);
-    fireEvent.click(screen.getByText('新增使用者'));
+
+    // Open the form
+    fireEvent.click(screen.getByTestId('add-user-button'));
     expect(screen.getByTestId('user-form')).toBeInTheDocument();
-    fireEvent.click(screen.getByText('關閉'));
+
+    // Close the form
+    fireEvent.click(screen.getByTestId('close-form-button'));
     expect(screen.queryByTestId('user-form')).not.toBeInTheDocument();
   });
 
   it('can add a new user', async () => {
     render(<UserTable />);
-    fireEvent.click(screen.getByText('新增使用者'));
-    fireEvent.click(screen.getByText('送出'));
+
+    // Open the form and submit a new user
+    fireEvent.click(screen.getByTestId('add-user-button'));
+    fireEvent.click(screen.getByTestId('submit-form-button'));
+
+    // Check if the new user is added to the table
     await waitFor(() => {
-      expect(screen.getByText('新用戶')).toBeInTheDocument();
+      expect(screen.getByText(TEST_USER)).toBeInTheDocument();
     });
   });
 
-  it('can open edit user form', () => {
+  it('can open the edit user form', () => {
     render(<UserTable />);
-    const editBtn = screen
-      .getAllByRole('button', { name: '' })
-      .find((btn) => btn.querySelector('svg'));
-    fireEvent.click(editBtn!);
+
+    // Find and click the first edit button
+    const editButtons = screen.getAllByTestId(/edit-user-\d+-button/);
+    fireEvent.click(editButtons[0]);
+
+    // Check if the form is opened
     expect(screen.getByTestId('user-form')).toBeInTheDocument();
   });
 
-  it('can open and cancel delete dialog', () => {
+  it('can open and cancel the delete confirmation dialog', () => {
     render(<UserTable />);
-    const deleteBtn = screen.getAllByTestId('delete-btn')[0];
-    fireEvent.click(deleteBtn);
-    expect(screen.getByTestId('confirm-delete-btn')).toBeInTheDocument();
-    fireEvent.click(screen.getByText('取消'));
-    expect(screen.queryByTestId('confirm-delete-btn')).not.toBeInTheDocument();
+
+    // Find and click the first delete button
+    const deleteButtons = screen.getAllByTestId(/delete-user-\d+-button/);
+    fireEvent.click(deleteButtons[0]);
+
+    // Check if the delete dialog is opened
+    expect(screen.getByTestId('delete-dialog-title')).toHaveTextContent(
+      TABLE_TEXTS.DELETE_DIALOG.TITLE
+    );
+
+    // Cancel the delete action
+    fireEvent.click(screen.getByTestId('cancel-delete-button'));
+
+    // Check if the dialog is closed
+    expect(screen.queryByTestId('delete-dialog-title')).not.toBeInTheDocument();
   });
 
   it('can delete a user', async () => {
     render(<UserTable />);
-    const deleteBtn = screen.getAllByTestId('delete-btn')[0];
-    fireEvent.click(deleteBtn);
-    expect(screen.getByTestId('confirm-delete-btn')).toBeInTheDocument();
-    const name = screen
-      .getByText(/確定要刪除使用者/)
-      .querySelector('span')?.textContent;
-    fireEvent.click(screen.getByTestId('confirm-delete-btn'));
+
+    // Get the first user's name
+    const userRows = screen.getAllByRole('row').slice(1); // Skip header row
+    const userName = userRows[0].querySelector('td')?.textContent;
+
+    // Open delete dialog
+    const deleteButtons = screen.getAllByTestId(/delete-user-\d+-button/);
+    fireEvent.click(deleteButtons[0]);
+
+    // Confirm deletion
+    fireEvent.click(screen.getByTestId('confirm-delete-button'));
+
+    // Check if the user is removed from the table
     await waitFor(() => {
-      expect(screen.queryByText(name!)).not.toBeInTheDocument();
+      expect(screen.queryByText(userName || '')).not.toBeInTheDocument();
     });
   });
 });

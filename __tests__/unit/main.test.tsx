@@ -1,7 +1,7 @@
 import { screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-vi.mock('../../src/stores/useSessionStore', () => ({
+vi.mock('@/stores/useSessionStore', () => ({
   useSessionStore: () => ({
     username: 'test-user',
     clearSession: vi.fn()
@@ -13,12 +13,12 @@ vi.mock('sonner', () => ({
   Toaster: () => null,
   toast: { error: () => {}, dismiss: () => {} }
 }));
-vi.mock('../../src/components/UserTable', () => ({ default: () => <div /> }));
-vi.mock('../../src/components/UsernameDialog', () => ({
+vi.mock('@/components/UserTable', () => ({ default: () => <div /> }));
+vi.mock('@/components/UsernameDialog', () => ({
   UsernameDialog: () => null
 }));
 
-vi.mock('../../src/App.tsx', () => ({
+vi.mock('@/App.tsx', () => ({
   __esModule: true,
   default: () => <div data-testid="app-root">App Loaded</div>
 }));
@@ -29,7 +29,7 @@ describe('main.tsx', () => {
     root.id = 'root';
     document.body.appendChild(root);
 
-    await import('../../src/main.tsx');
+    await import('@/main.tsx');
 
     await waitFor(() => {
       expect(screen.getByTestId('app-root')).toBeInTheDocument();

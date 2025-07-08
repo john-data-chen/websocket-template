@@ -1,16 +1,17 @@
+import UserForm from '@/components/UserForm';
+import { FORM_TEXTS } from '@/constants/formTexts';
+import { TEST_DESCRIPTION, TEST_EMAIL, TEST_USER } from '@/constants/mockData';
 import '@testing-library/jest-dom';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import React from 'react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import UserForm from '../../../src/components/UserForm';
 
-vi.mock('../../../src/hooks/useIsMobileScreen', () => ({
+vi.mock('@/hooks/useIsMobileScreen', () => ({
   useIsMobileScreen: () => false
 }));
-vi.mock('../../../src/hooks/useWebSocket', () => ({
+vi.mock('@/hooks/useWebSocket', () => ({
   useWebSocket: () => ({ sendMessage: vi.fn() })
 }));
-vi.mock('../../../src/stores/useSessionStore', () => ({
+vi.mock('@/stores/useSessionStore', () => ({
   useSessionStore: () => ({ user: { name: 'Mark.S' } })
 }));
 vi.mock('sonner', () => ({
@@ -25,6 +26,14 @@ describe('UserForm', () => {
     onSubmit: vi.fn()
   };
 
+  const testUser = {
+    id: 1,
+    name: TEST_USER,
+    email: TEST_EMAIL,
+    isActive: false,
+    description: TEST_DESCRIPTION
+  };
+
   beforeEach(() => {
     vi.clearAllMocks();
     localStorage.clear();
@@ -33,23 +42,38 @@ describe('UserForm', () => {
   it('calls onSubmit with correct data', async () => {
     const onSubmit = vi.fn();
     render(<UserForm {...baseProps} onSubmit={onSubmit} />);
-    fireEvent.change(screen.getByPlaceholderText(/請輸入姓名/), {
-      target: { value: '小明' }
-    });
-    fireEvent.blur(screen.getByPlaceholderText(/請輸入姓名/));
-    fireEvent.change(screen.getByPlaceholderText(/請輸入電子郵件/), {
-      target: { value: 'test@mail.com' }
-    });
-    fireEvent.blur(screen.getByPlaceholderText(/請輸入電子郵件/));
-    fireEvent.change(screen.getByPlaceholderText(/請輸入描述/), {
-      target: { value: '這是描述內容' }
-    });
-    fireEvent.blur(screen.getByPlaceholderText(/請輸入描述/));
 
-    // 明確切換 Switch（帳號狀態），如果預設已是 true 可省略
-    // fireEvent.click(screen.getByRole('checkbox'));
+    fireEvent.change(
+      screen.getByPlaceholderText(FORM_TEXTS.FIELDS.NAME.PLACEHOLDER),
+      {
+        target: { value: TEST_USER }
+      }
+    );
+    fireEvent.blur(
+      screen.getByPlaceholderText(FORM_TEXTS.FIELDS.NAME.PLACEHOLDER)
+    );
 
-    // 等待按鈕啟用
+    fireEvent.change(
+      screen.getByPlaceholderText(FORM_TEXTS.FIELDS.EMAIL.PLACEHOLDER),
+      {
+        target: { value: TEST_EMAIL }
+      }
+    );
+    fireEvent.blur(
+      screen.getByPlaceholderText(FORM_TEXTS.FIELDS.EMAIL.PLACEHOLDER)
+    );
+
+    fireEvent.change(
+      screen.getByPlaceholderText(FORM_TEXTS.FIELDS.DESCRIPTION.PLACEHOLDER),
+      {
+        target: { value: TEST_DESCRIPTION }
+      }
+    );
+    fireEvent.blur(
+      screen.getByPlaceholderText(FORM_TEXTS.FIELDS.DESCRIPTION.PLACEHOLDER)
+    );
+
+    // Wait for button to be enabled
     await waitFor(() => {
       expect(screen.getByTestId('submit-button')).not.toBeDisabled();
     });
@@ -58,37 +82,26 @@ describe('UserForm', () => {
 
     await waitFor(() => {
       expect(onSubmit).toHaveBeenCalledWith({
-        name: '小明',
-        email: 'test@mail.com',
+        name: TEST_USER,
+        email: TEST_EMAIL,
         isActive: true,
-        description: '這是描述內容'
+        description: TEST_DESCRIPTION
       });
     });
   });
 
   it('renders edit form when user prop is provided', () => {
-    render(
-      <UserForm
-        {...baseProps}
-        user={{
-          id: 1,
-          name: '小明',
-          email: 'test@mail.com',
-          isActive: false,
-          description: '描述'
-        }}
-      />
-    );
-    expect(screen.getByText('編輯使用者')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('小明')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('test@mail.com')).toBeInTheDocument();
-    expect(screen.getByDisplayValue('描述')).toBeInTheDocument();
+    render(<UserForm {...baseProps} user={testUser} />);
+    expect(screen.getByText(FORM_TEXTS.EDIT_USER_TITLE)).toBeInTheDocument();
+    expect(screen.getByDisplayValue(TEST_USER)).toBeInTheDocument();
+    expect(screen.getByDisplayValue(TEST_EMAIL)).toBeInTheDocument();
+    expect(screen.getByDisplayValue(TEST_DESCRIPTION)).toBeInTheDocument();
   });
 
   it('calls onOpenChange(false) when cancel is clicked', () => {
     const onOpenChange = vi.fn();
     render(<UserForm {...baseProps} onOpenChange={onOpenChange} />);
-    fireEvent.click(screen.getByText('取消'));
+    fireEvent.click(screen.getByText(FORM_TEXTS.BUTTONS.CANCEL));
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 });
