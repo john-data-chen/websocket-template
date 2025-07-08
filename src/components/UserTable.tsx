@@ -59,16 +59,13 @@ export default function UserTable() {
       // Update existing user
       setUsers(
         users.map((user) =>
-          user.id === currentUser.id ? { ...user, ...data } : user
+          user.id === currentUser.id ? { ...data, id: currentUser.id } : user
         )
       );
     } else {
-      // Add new user
-      const newUser: User = {
-        ...data,
-        id: users.length > 0 ? Math.max(...users.map((u) => u.id)) + 1 : 1
-      };
-      setUsers([...users, newUser]);
+      // Add new user with unique ID
+      const newId = Date.now();
+      setUsers([...users, { ...data, id: newId }]);
     }
     setIsFormOpen(false);
   };
