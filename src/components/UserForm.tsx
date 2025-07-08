@@ -189,23 +189,37 @@ export default function UserForm({
     if (!user?.id) return;
 
     if (open) {
-      // Send start editing message
-      sendMessage({
-        type: 'start_editing',
+      const message = {
+        type: 'start_editing' as const,
         payload: {
           recordId: user.id,
           userName: currentUser?.name ?? FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS
         }
-      });
+      };
+
+      // Log the WebSocket message being sent
+      console.log(
+        '[WebSocket] Sending message:',
+        JSON.stringify(message, null, 2)
+      );
+
+      sendMessage(message);
     } else {
-      // Send stop editing message
-      sendMessage({
-        type: 'stop_editing',
+      const message = {
+        type: 'stop_editing' as const,
         payload: {
           recordId: user.id,
           userName: currentUser?.name ?? FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS
         }
-      });
+      };
+
+      // Log the WebSocket message being sent
+      console.log(
+        '[WebSocket] Sending message:',
+        JSON.stringify(message, null, 2)
+      );
+
+      sendMessage(message);
 
       // Clear editing users list
       setEditingUsers([]);
