@@ -1,5 +1,6 @@
 'use client';
 
+import { DIALOG_TEXTS } from '@/constants/dialogTexts';
 import { usernameSchema } from '@/lib/validation';
 import { useSessionStore } from '@/stores/useSessionStore';
 import { zodResolver } from '@hookform/resolvers/zod';
@@ -89,9 +90,11 @@ export function UsernameDialog({
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <DialogHeader>
-              <DialogTitle className="text-lg sm:text-xl">歡迎使用</DialogTitle>
+              <DialogTitle className="text-lg sm:text-xl">
+                {DIALOG_TEXTS.WELCOME.TITLE}
+              </DialogTitle>
               <DialogDescription className="text-sm sm:text-base">
-                請輸入您的名字以繼續使用系統
+                {DIALOG_TEXTS.WELCOME.DESCRIPTION}
               </DialogDescription>
             </DialogHeader>
 
@@ -100,10 +103,12 @@ export function UsernameDialog({
               name="username"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel className="text-sm sm:text-base">名字</FormLabel>
+                  <FormLabel className="text-sm sm:text-base">
+                    {DIALOG_TEXTS.WELCOME.LABEL}
+                  </FormLabel>
                   <FormControl>
                     <Input
-                      placeholder="請輸入您的名字"
+                      placeholder={DIALOG_TEXTS.WELCOME.PLACEHOLDER}
                       autoComplete="off"
                       {...field}
                       className="form-element"
@@ -121,7 +126,7 @@ export function UsernameDialog({
                 className="w-full sm:w-auto"
                 data-testid="login-confirm-button"
               >
-                確認
+                {DIALOG_TEXTS.WELCOME.BUTTON}
               </Button>
             </DialogFooter>
           </form>
