@@ -279,11 +279,15 @@ export default function UserForm({
           <form
             onSubmit={form.handleSubmit(handleSubmit)}
             className="space-y-6"
+            data-testid="user-form"
+            aria-label="User form"
           >
             <div className="grid grid-cols-2 gap-4">
               <FormField
                 control={form.control}
                 name="name"
+                data-testid="user-form-name"
+                aria-label="User name"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
@@ -310,6 +314,8 @@ export default function UserForm({
               <FormField
                 control={form.control}
                 name="email"
+                data-testid="user-form-email"
+                aria-label="User email"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>
@@ -339,6 +345,8 @@ export default function UserForm({
             <FormField
               control={form.control}
               name="isActive"
+              data-testid="user-form-is-active"
+              aria-label="User is active"
               render={({ field }) => (
                 <FormItem className="flex flex-row items-center justify-between rounded-lg border border-[#cbd5e1] p-4">
                   <div className="space-y-0.5">
@@ -371,6 +379,8 @@ export default function UserForm({
             <FormField
               control={form.control}
               name="description"
+              data-testid="user-form-description"
+              aria-label="User description"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>
@@ -396,6 +406,7 @@ export default function UserForm({
                 type="button"
                 variant="outline"
                 data-testid="cancel-button"
+                aria-label="Cancel"
                 onClick={() => onOpenChange(false)}
               >
                 {FORM_TEXTS.BUTTONS.CANCEL}
@@ -403,6 +414,7 @@ export default function UserForm({
               <Button
                 type="submit"
                 data-testid="submit-button"
+                aria-label="Submit"
                 disabled={
                   !form.formState.isValid || form.formState.isSubmitting
                 }
