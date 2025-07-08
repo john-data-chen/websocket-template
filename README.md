@@ -9,11 +9,19 @@
 
 This is a demo project for a user list SPA using websocket.
 
-**Extra Accomplishments**:
+### Basic Features
+
+- Pops a dialog to ask for username when user first visits the page.
+- Input username and click confirm button to login, pops a welcome message with username, save username to session storage.
+- Display a list of users, and basic CRUD operations.
+- Use form validation to validate inputs. (Used Zod self built validation to validate email for consistency)
+- Pops a toaster message when multiple users are editing a user at the same time. (Used Socket.io and Sonner)
+
+### Extra Accomplishments
 
 - **Responsive Design**: for both desktop and mobile devices, using Tailwind CSS.
 - **Test Coverage**: 80%+
-- **Reliability, Security and Maintainability Rating in SonarQube**: A
+- **Security, Reliability Maintainability and Hotspots Reviewed Rating in SonarQube**: A
 - **Cross-browser Testing**: for both desktop and mobile devices.
 - **CI/CD automation**: in GitHub actions and Vercel.
 
@@ -29,6 +37,7 @@ This is a demo project for a user list SPA using websocket.
 - **Testing**: [Vitest](https://vitest.dev/), [Playwright](https://playwright.dev/)
 - **State Management**: [Zustand](https://zustand-demo.pmnd.rs/)
 - **Forms**: [React Hook Form](https://react-hook-form.com/), [Zod](https://zod.dev/)
+- **Websocket**: [Socket.io](https://socket.io/)
 - **CI/CD**: [GitHub Actions](https://github.com/features/actions), [Vercel](https://vercel.com/home), [Codecov](https://codecov.io/), [SonarQube](https://sonarcloud.io/)
 
 ---
@@ -44,7 +53,7 @@ pnpm install
 # Rename .env.example to .env
 mv .env.example .env
 
-# modify .env file, replace [wss://xxx.com/ws] with your websocket url
+# Modify .env file, replace [wss://xxx.com/ws] with your websocket url
 VITE_WEBSOCKET_URL=[wss://xxx.com/ws]
 
 # Start development server
@@ -96,5 +105,4 @@ src/
 ├── global.css # Global styles
 └── main.tsx # Entry point
 .env.example # Environment variables
-README.md # Project documentation
 ```
