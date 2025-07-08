@@ -24,9 +24,18 @@ vi.mock('@/components/UsernameDialog', () => ({
 
 // Mock stores and hooks
 vi.mock('@/stores/useSessionStore');
-vi.mock('@/stores/useWebSocketStore', () => ({
-  useWebSocketConnection: () => ({ isConnected: true })
-}));
+vi.mock('@/stores/useWebSocketStore', async (importOriginal) => {
+  const actual = await importOriginal();
+  return {
+    ...(actual as object),
+    useWebSocketConnection: () => ({ isConnected: true }),
+    useWebSocketActions: () => ({
+      connect: vi.fn(),
+      disconnect: vi.fn(),
+      sendMessage: vi.fn()
+    })
+  };
+});
 
 // Mock analytics and UI components
 vi.mock('@vercel/analytics/react', () => ({
