@@ -11,13 +11,15 @@ export const FORM_TEXTS = {
       LABEL: '姓名',
       PLACEHOLDER: '請輸入姓名 (2-10 字元)',
       MOBILE_PLACEHOLDER: '2-10 字元',
-      REQUIRED: '*'
+      REQUIRED: '*',
+      REMINDER: '此欄位必填，目前長度不符合 2-10 字元'
     },
     EMAIL: {
       LABEL: '電子郵件',
       PLACEHOLDER: '請輸入電子郵件',
       MOBILE_PLACEHOLDER: '電子郵件',
-      REQUIRED: '*'
+      REQUIRED: '*',
+      REMINDER: '此欄位必填，目前不是有效的電子郵件格式'
     },
     STATUS: {
       LABEL: '帳號狀態',
@@ -29,7 +31,8 @@ export const FORM_TEXTS = {
     DESCRIPTION: {
       LABEL: '描述',
       PLACEHOLDER: '請輸入描述 (5-200 字元)',
-      REQUIRED: '*'
+      REQUIRED: '*',
+      REMINDER: '此欄位必填，目前長度不符合 5-200 字元'
     }
   },
 
@@ -43,10 +46,7 @@ export const FORM_TEXTS = {
 
   // Notifications
   NOTIFICATIONS: {
-    EDITING_USERS: '正在編輯的使⽤者：',
-    DRAFT_SAVE_ERROR: '無法儲存草稿',
-    DRAFT_LOAD_ERROR: '無法載入草稿',
-    DRAFT_CLEAR_ERROR: '無法清除草稿'
+    EDITING_USERS: '正在編輯的使⽤者：'
   },
 
   // Default Values

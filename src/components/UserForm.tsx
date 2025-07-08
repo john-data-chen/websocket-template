@@ -299,16 +299,19 @@ export default function UserForm({
                     </FormLabel>
                     <FormControl>
                       <Input
-                        className="form-element"
+                        className={`form-element ${
+                          form.formState.errors.name ? 'border-red-500' : ''
+                        }`}
                         placeholder={
                           isMobile
                             ? FORM_TEXTS.FIELDS.NAME.MOBILE_PLACEHOLDER
                             : FORM_TEXTS.FIELDS.NAME.PLACEHOLDER
                         }
+                        aria-invalid={!!form.formState.errors.name}
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage data-testid="name-error" />
                   </FormItem>
                 )}
               />
@@ -327,17 +330,20 @@ export default function UserForm({
                     </FormLabel>
                     <FormControl>
                       <Input
-                        className="form-element"
+                        className={`form-element ${
+                          form.formState.errors.email ? 'border-red-500' : ''
+                        }`}
                         placeholder={
                           isMobile
                             ? FORM_TEXTS.FIELDS.EMAIL.MOBILE_PLACEHOLDER
                             : FORM_TEXTS.FIELDS.EMAIL.PLACEHOLDER
                         }
                         type="email"
+                        aria-invalid={!!form.formState.errors.email}
                         {...field}
                       />
                     </FormControl>
-                    <FormMessage />
+                    <FormMessage data-testid="email-error" />
                   </FormItem>
                 )}
               />
@@ -393,11 +399,16 @@ export default function UserForm({
                   <FormControl>
                     <Textarea
                       placeholder={FORM_TEXTS.FIELDS.DESCRIPTION.PLACEHOLDER}
-                      className="form-element min-h-[120px]"
+                      className={`form-element min-h-[120px] ${
+                        form.formState.errors.description
+                          ? 'border-red-500'
+                          : ''
+                      }`}
+                      aria-invalid={!!form.formState.errors.description}
                       {...field}
                     />
                   </FormControl>
-                  <FormMessage />
+                  <FormMessage data-testid="description-error" />
                 </FormItem>
               )}
             />
