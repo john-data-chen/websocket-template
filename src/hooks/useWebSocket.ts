@@ -6,7 +6,6 @@ export interface WebSocketOptions {
   maxReconnectAttempts?: number;
   reconnectDelay?: number;
   maxWaitTime?: number;
-  pingInterval?: number;
   onMessage?: (message: WebSocketMessage) => void;
   onOpen?: () => void;
   onClose?: () => void;
@@ -21,18 +20,16 @@ export function useWebSocket(url: string, options: WebSocketOptions = {}) {
     onReconnectFailed,
     maxReconnectAttempts = WEBSOCKET_CONFIG.MAX_RECONNECT_ATTEMPTS,
     reconnectDelay = WEBSOCKET_CONFIG.RECONNECT_DELAY,
-    maxWaitTime = WEBSOCKET_CONFIG.MAX_WAIT_TIME,
-    pingInterval = WEBSOCKET_CONFIG.PING_INTERVAL
+    maxWaitTime = WEBSOCKET_CONFIG.MAX_WAIT_TIME
   } = options;
 
   const ws = useRef<WebSocket | null>(null);
   const reconnectAttempts = useRef(0);
   const reconnectTimer = useRef<NodeJS.Timeout | null>(null);
-  const pingTimer = useRef<NodeJS.Timeout | null>(null);
   const isMounted = useRef(true);
   const [isConnected, setIsConnected] = useState(false);
 
-  // Save callback references to avoid unnecessary re-connections
+  // Initialize callbacks ref with the latest values
   const callbacksRef = useRef({
     onMessage,
     onOpen,
@@ -40,7 +37,7 @@ export function useWebSocket(url: string, options: WebSocketOptions = {}) {
     onReconnectFailed
   });
 
-  // Update callback references when they change
+  // Update callbacks when they change
   useEffect(() => {
     callbacksRef.current = {
       onMessage,
@@ -50,14 +47,11 @@ export function useWebSocket(url: string, options: WebSocketOptions = {}) {
     };
   }, [onMessage, onOpen, onClose, onReconnectFailed]);
 
+  // Cleanup timers and WebSocket connection
   const clearTimers = useCallback(() => {
     if (reconnectTimer.current) {
       clearTimeout(reconnectTimer.current);
       reconnectTimer.current = null;
-    }
-    if (pingTimer.current) {
-      clearInterval(pingTimer.current);
-      pingTimer.current = null;
     }
   }, []);
 
@@ -86,27 +80,18 @@ export function useWebSocket(url: string, options: WebSocketOptions = {}) {
         setIsConnected(true);
         clearTimers();
         callbacksRef.current.onOpen?.();
-      };
 
-      socket.onmessage = (event) => {
-        if (!isMounted.current) return;
-
-        try {
-          // Check if it's a valid JSON string
-          if (typeof event.data === 'string') {
+        // Handle incoming WebSocket messages
+        const handleMessage = (event: MessageEvent) => {
+          try {
             const message = JSON.parse(event.data) as WebSocketMessage;
             callbacksRef.current.onMessage?.(message);
-          } else {
-            console.warn('Received non-string WebSocket message:', event.data);
+          } catch (error) {
+            console.error('Error parsing WebSocket message:', error);
           }
-        } catch (error) {
-          console.error(
-            'Error parsing WebSocket message:',
-            error,
-            'Data:',
-            event.data
-          );
-        }
+        };
+
+        socket.onmessage = handleMessage;
       };
 
       socket.onclose = () => {
@@ -171,19 +156,16 @@ export function useWebSocket(url: string, options: WebSocketOptions = {}) {
   useEffect(() => {
     if (!isConnected) return;
 
-    pingTimer.current = setInterval(() => {
+    const pingTimer = setInterval(() => {
       if (ws.current?.readyState === WebSocket.OPEN) {
         sendMessage({ type: 'ping' });
       }
-    }, pingInterval);
+    }, WEBSOCKET_CONFIG.PING_INTERVAL);
 
     return () => {
-      if (pingTimer.current) {
-        clearInterval(pingTimer.current);
-        pingTimer.current = null;
-      }
+      clearInterval(pingTimer);
     };
-  }, [isConnected, pingInterval, sendMessage]);
+  }, [isConnected, sendMessage]);
 
   // Initialize WebSocket connection
   useEffect(() => {

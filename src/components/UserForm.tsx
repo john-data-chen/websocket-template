@@ -19,10 +19,9 @@ import { Input } from '@/components/ui/input';
 import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { FORM_ATTRIBUTES } from '@/constants/formAttribute';
-import { WEBSOCKET_URL } from '@/constants/websocket';
 import { useFormDraft } from '@/hooks/useFormDraft';
 import { useIsMobileScreen } from '@/hooks/useIsMobileScreen';
-import { useWebSocket } from '@/hooks/useWebSocket';
+import { useWebSocketEditing } from '@/hooks/useWebSocketEditing';
 import {
   descriptionSchema,
   emailSchema,
@@ -31,11 +30,9 @@ import {
 } from '@/lib/validation';
 import { useSessionStore } from '@/stores/useSessionStore';
 import type { User } from '@/types/user';
-import type { WebSocketMessage } from '@/types/websocket';
 import { zodResolver } from '@hookform/resolvers/zod';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useForm } from 'react-hook-form';
-import { toast } from 'sonner';
 import * as z from 'zod';
 
 const formSchema = z.object({
@@ -66,61 +63,19 @@ export default function UserForm({
   onSubmit
 }: UserFormProps) {
   const { user: currentUser } = useSessionStore();
-  // Track other users who are editing
-  const [editingUsers, setEditingUsers] = useState<readonly string[]>([]);
-  // Currently only used for WebSocket updates, the variable itself is not used directly
-  void editingUsers;
-  const toastIdRef = useRef<string | number | null>(null);
   const isMobile = useIsMobileScreen();
 
-  const handleWebSocketMessage = useCallback(
-    (message: WebSocketMessage) => {
-      console.log('Received WebSocket message:', message);
-
-      if (
-        message.type === 'editing_status_update' &&
-        user?.id === message.payload.recordId
-      ) {
-        // Ensure unique user names and exclude current user
-        const uniqueUsers = Array.from(new Set(message.payload.users));
-        const otherUsers = uniqueUsers.filter(
-          (userName: string) =>
-            userName !== currentUser?.name && userName.trim() !== ''
-        );
-
-        console.log('Other users editing (unique):', otherUsers);
-
-        // Ensure no duplicate keys by using index as part of the key if needed
-        setEditingUsers(otherUsers);
-
-        // Show or update Toast notification
-        if (otherUsers.length > 0) {
-          const notificationMessage = `${FORM_ATTRIBUTES.NOTIFICATIONS.EDITING_USERS}${otherUsers.join(', ')}`;
-          console.log('Showing notification:', notificationMessage);
-
-          if (toastIdRef.current) {
-            toast.dismiss(toastIdRef.current);
-          }
-
-          toastIdRef.current = toast(notificationMessage, {
-            duration: Infinity,
-            id: toastIdRef.current?.toString(),
-            className: 'toast-error'
-          });
-        } else if (toastIdRef.current) {
-          console.log('No other users editing, dismissing notification');
-          toast.dismiss(toastIdRef.current);
-          toastIdRef.current = null;
-        }
-      }
-    },
-    [user?.id, currentUser?.name]
-  );
-
-  // WebSocket connection
-  const { sendMessage } = useWebSocket(WEBSOCKET_URL, {
-    onMessage: handleWebSocketMessage
+  // WebSocket connection for editing status
+  const { sendMessage, clearEditingNotification } = useWebSocketEditing({
+    recordId: user?.id?.toString() || null,
+    currentUserName: currentUser?.name || null,
+    onEditingUsersChange: (users) => {
+      console.log('Other users editing (unique):', users);
+    }
   });
+
+  // Track if we've sent a stop_editing message to prevent duplicates
+  const hasSentStopMessage = useRef(false);
   const defaultValues = useMemo(
     () => ({
       name: '',
@@ -141,9 +96,6 @@ export default function UserForm({
     form,
     key: user ? `user_draft_${user.id}` : 'user_draft_new'
   });
-
-  // Track if we've sent a stop_editing message to prevent duplicates
-  const hasSentStopMessage = useRef(false);
 
   // When the form opens/closes, send corresponding WebSocket messages
   useEffect(() => {
@@ -185,7 +137,6 @@ export default function UserForm({
       );
 
       sendMessage(message);
-      setEditingUsers([]);
     }
 
     // Cleanup function to send stop_editing when component unmounts
@@ -211,13 +162,17 @@ export default function UserForm({
       // Clear any pending draft saves
       debouncedSaveDraft.cancel();
 
-      // Dismiss any active toast notifications
-      if (toastIdRef.current) {
-        toast.dismiss(toastIdRef.current);
-        toastIdRef.current = null;
-      }
+      // Clear any active notifications
+      clearEditingNotification?.();
     };
-  }, [open, user?.id, currentUser?.name, sendMessage, debouncedSaveDraft]);
+  }, [
+    open,
+    user?.id,
+    currentUser?.name,
+    sendMessage,
+    debouncedSaveDraft,
+    clearEditingNotification
+  ]);
 
   // When the form opens, reset the form and load the draft
   useEffect(() => {
