@@ -129,10 +129,27 @@ describe('useWebSocket', () => {
       })
     );
 
+    // Simulate WebSocket connection established
     act(() => {
-      mockWebSocket._triggerEvent('message', testMessage);
+      if (mockWebSocket.onopen) {
+        mockWebSocket.onopen();
+      }
     });
 
+    // Trigger message event
+    act(() => {
+      const messageEvent = {
+        data: JSON.stringify(testMessage)
+      } as MessageEvent;
+
+      // Directly trigger the onmessage handler
+      if (mockWebSocket.onmessage) {
+        mockWebSocket.onmessage(messageEvent);
+      }
+    });
+
+    // Verify that onMessage callback was called correctly
+    expect(mockOnMessage).toHaveBeenCalledTimes(1);
     expect(mockOnMessage).toHaveBeenCalledWith(testMessage);
   });
 
