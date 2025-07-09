@@ -90,7 +90,7 @@ pnpm build
 ### 📊 Testing Strategy
 
 - Unit Tests: Focused on critical store logic, complex form validations, and isolated component behaviors, ensuring granular code reliability.
-- Coverage: Maintained above 90% (verified via `vitest run --coverage`), reflecting a commitment to robust code coverage without sacrificing test quality.
+- Coverage: Maintained above 90% (verified via `npx vitest run --coverage`), reflecting a commitment to robust code coverage without sacrificing test quality.
 
 <img src="./public/screenshots/test coverage.png" alt="Test Coverage" width="723" height="472">
 
@@ -131,6 +131,11 @@ src/
 - **Reason**: Internal implementation of Radix UI's Dialog component
 
 ### Future Improvements
+
+#### Convert to Tailwind utility classes
+
+- Current: using global CSS rules to ensure strict visual compliance.
+- Future: convert to Tailwind utility classes to improve modularity and maintainability.
 
 #### Dark mode and theme switching
 
