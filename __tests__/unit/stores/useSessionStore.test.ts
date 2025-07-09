@@ -4,7 +4,7 @@ import { create } from 'zustand';
 import { createJSONStorage, persist } from 'zustand/middleware';
 import { useSessionStore } from '../../../src/stores/useSessionStore';
 
-// 定義與 useSessionStore 相同的類型
+// Define the same type as useSessionStore
 interface SessionState {
   user: {
     name: string | null;
@@ -14,7 +14,7 @@ interface SessionState {
   isAuthenticated: () => boolean;
 }
 
-// 模擬 sessionStorage
+// Mock sessionStorage
 const mockSessionStorage = (() => {
   let store: Record<string, string> = {};
   return {
@@ -48,9 +48,9 @@ describe('useSessionStore', () => {
   const originalEnv = process.env;
 
   beforeEach(() => {
-    // 重置 sessionStorage
+    // Reset sessionStorage
     window.sessionStorage.clear();
-    // 重置 store 狀態
+    // Reset store state
     const initialState = useSessionStore.getInitialState();
     useSessionStore.setState(
       {
@@ -62,17 +62,17 @@ describe('useSessionStore', () => {
   });
 
   afterEach(() => {
-    // 恢復原始環境變數
+    // Restore original environment variables
     process.env = originalEnv;
   });
 
-  it('應該有正確的初始狀態', () => {
+  it('should have correct initial state', () => {
     const state = useSessionStore.getState();
     expect(state.user).toBeNull();
     expect(state.isAuthenticated()).toBe(false);
   });
 
-  it('應該可以登入用戶', () => {
+  it('should be able to log in a user', () => {
     act(() => {
       useSessionStore.getState().login('testUser');
     });
@@ -82,13 +82,13 @@ describe('useSessionStore', () => {
     expect(isAuthenticated()).toBe(true);
   });
 
-  it('應該可以登出用戶', () => {
-    // 先登入
+  it('should be able to log out a user', () => {
+    // First log in
     act(() => {
       useSessionStore.getState().login('testUser');
     });
 
-    // 再登出
+    // Then log out
     act(() => {
       useSessionStore.getState().logout();
     });
@@ -98,28 +98,28 @@ describe('useSessionStore', () => {
     expect(isAuthenticated()).toBe(false);
   });
 
-  it('應該正確判斷用戶是否已認證', () => {
-    // 初始狀態
+  it('should correctly determine if user is authenticated', () => {
+    // Initial state
     expect(useSessionStore.getState().isAuthenticated()).toBe(false);
 
-    // 登入後
+    // After login
     act(() => {
       useSessionStore.getState().login('testUser');
     });
     expect(useSessionStore.getState().isAuthenticated()).toBe(true);
 
-    // 登出後
+    // After logout
     act(() => {
       useSessionStore.getState().logout();
     });
     expect(useSessionStore.getState().isAuthenticated()).toBe(false);
   });
 
-  it('應該將狀態持久化到 sessionStorage', async () => {
-    // 清空 sessionStorage 以確保測試獨立性
+  it('should persist state to sessionStorage', async () => {
+    // Clear sessionStorage to ensure test isolation
     window.sessionStorage.clear();
 
-    // 創建一個新的 store 實例，確保每次測試都是獨立的
+    // Create a new store instance to ensure each test is independent
     const createTestStore = () =>
       create<SessionState>()(
         persist(
@@ -138,53 +138,50 @@ describe('useSessionStore', () => {
 
     const testStore = createTestStore();
 
-    // 登入
+    // Login
     testStore.getState().login('testUser');
 
-    // 等待 Zustand 的異步操作完成
+    // Wait for Zustand's async operations to complete
     await new Promise((resolve) => setTimeout(resolve, 100));
 
-    // 直接從 store 獲取狀態進行驗證
+    // Get state directly from store for validation
     const currentState = testStore.getState();
     expect(currentState.user).toEqual({ name: 'testUser' });
     expect(currentState.isAuthenticated()).toBe(true);
 
-    // 檢查 sessionStorage 中是否有正確的數據
+    // Check if sessionStorage has the correct data
     const storedData = window.sessionStorage.getItem('user-session');
-    console.log('Stored data in sessionStorage:', storedData);
 
-    // 確保有存儲數據
+    // Ensure there is stored data
     expect(storedData).toBeTruthy();
 
-    // 解析存儲的數據
+    // Parse the stored data
     const parsedData = JSON.parse(storedData || '{}');
-    console.log('Parsed sessionStorage data:', parsedData);
 
-    // 檢查狀態結構
+    // Check state structure
     expect(parsedData.state).toBeDefined();
     expect(parsedData.state.user).toBeDefined();
     expect(parsedData.state.user.name).toBe('testUser');
 
-    // 登出
+    // Logout
     testStore.getState().logout();
 
-    // 等待異步操作完成
+    // Wait for async operations to complete
     await new Promise((resolve) => setTimeout(resolve, 100));
 
-    // 驗證狀態已更新
+    // Verify state is updated
     expect(testStore.getState().user).toBe(null);
     expect(testStore.getState().isAuthenticated()).toBe(false);
 
-    // 檢查 sessionStorage 是否被清除
+    // Check if sessionStorage is cleared
     const afterLogout = JSON.parse(
       window.sessionStorage.getItem('user-session') || '{}'
     );
-    console.log('After logout sessionStorage:', afterLogout);
     expect(afterLogout.state).toStrictEqual({ user: null });
   });
 
-  it('應該從 sessionStorage 恢復狀態', async () => {
-    // 設置模擬的 sessionStorage 數據
+  it('should restore state from sessionStorage', async () => {
+    // Set up mock sessionStorage data
     const mockState = {
       state: {
         user: { name: 'restoredUser' }
@@ -193,7 +190,7 @@ describe('useSessionStore', () => {
     };
     window.sessionStorage.setItem('user-session', JSON.stringify(mockState));
 
-    // 定義 store 的類型和狀態
+    // Define store type and state
     type TestStoreState = {
       user: { name: string } | null;
       login: (name: string) => void;
@@ -201,7 +198,7 @@ describe('useSessionStore', () => {
       isAuthenticated: () => boolean;
     };
 
-    // 創建一個新的 store 實例
+    // Create a new store instance
     const createStore = () => {
       const useTestStore = create<TestStoreState>()(
         persist(
@@ -223,19 +220,14 @@ describe('useSessionStore', () => {
       return useTestStore;
     };
 
-    // 創建並初始化 store
+    // Create and initialize store
     const store = createStore();
 
-    // 等待異步操作完成
+    // Wait for async operations to complete
     await new Promise((resolve) => setTimeout(resolve, 100));
 
-    // 獲取狀態並驗證
+    // Get state and validate
     const state = store.getState();
-    console.log('Current store state:', state); // 添加日誌調試
-    console.log(
-      'Session storage:',
-      window.sessionStorage.getItem('user-session')
-    ); // 添加日誌調試
 
     expect(state.user).toEqual({ name: 'restoredUser' });
     expect(state.isAuthenticated()).toBe(true);

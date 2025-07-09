@@ -28,7 +28,6 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
       const ws = new WebSocket(url);
 
       ws.onopen = () => {
-        console.log('WebSocket connected');
         set({
           ws,
           isConnected: true
@@ -41,15 +40,12 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
         if (shouldReconnect) {
           const delay = WEBSOCKET_CONFIG.RECONNECT_DELAY;
 
-          console.log(`WebSocket closed. Reconnecting in ${delay}ms...`);
-
           setTimeout(() => {
             if (get().shouldReconnect) {
               get().connect(url);
             }
           }, delay);
         } else {
-          console.log('WebSocket connection closed');
           set({
             isConnected: false,
             ws: null,
@@ -64,8 +60,8 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
 
       ws.onmessage = (event) => {
         try {
-          const data = JSON.parse(event.data);
-          console.log('WebSocket message received:', data);
+          // Parse the message but don't assign to a variable since it's handled by another store
+          JSON.parse(event.data);
           // use another store to manage received message state
         } catch (error) {
           console.error('Error parsing WebSocket message:', error);

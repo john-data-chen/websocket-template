@@ -70,9 +70,7 @@ export default function UserForm({
     useWebSocketEditing({
       recordId: user?.id?.toString() || null,
       currentUserName: currentUser?.name || null,
-      onEditingUsersChange: (users) => {
-        console.log('Other users editing (unique):', users);
-      }
+      onEditingUsersChange: () => {}
     });
 
   // Hide toast when the form is closed
@@ -121,12 +119,6 @@ export default function UserForm({
           userName: currentUser?.name ?? FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS
         }
       };
-
-      console.log(
-        '[WebSocket] Sending message:',
-        JSON.stringify(message, null, 2)
-      );
-
       sendMessage(message);
     } else if (!hasSentStopMessage.current) {
       // Only send stop_editing if we haven't sent it yet
@@ -139,12 +131,6 @@ export default function UserForm({
           userName: currentUser?.name ?? FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS
         }
       };
-
-      console.log(
-        '[WebSocket] Sending message:',
-        JSON.stringify(message, null, 2)
-      );
-
       sendMessage(message);
     }
 
@@ -159,12 +145,6 @@ export default function UserForm({
             userName: currentUser?.name ?? FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS
           }
         };
-
-        console.log(
-          '[WebSocket] Cleanup - Sending message:',
-          JSON.stringify(message, null, 2)
-        );
-
         sendMessage(message);
       }
 
