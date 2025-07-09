@@ -1,6 +1,5 @@
 import { Analytics } from '@vercel/analytics/react';
 import { useEffect, useState } from 'react';
-// Custom toast container is used instead of sonner Toaster
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ErrorFallback } from './components/ErrorFallback';
 import { Button } from './components/ui/button';
@@ -30,25 +29,7 @@ function App() {
   return (
     <>
       <Analytics />
-      <div
-        id="editing-users-toast"
-        style={{
-          position: 'fixed',
-          bottom: '1rem',
-          right: '1rem',
-          backgroundColor: 'rgba(0, 0, 0, 0.9)',
-          color: 'white',
-          padding: '0.75rem 1.25rem',
-          borderRadius: '0.375rem',
-          zIndex: 9999,
-          display: 'none',
-          maxWidth: '320px',
-          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
-          fontSize: '0.9375rem',
-          lineHeight: '1.5',
-          backdropFilter: 'blur(4px)'
-        }}
-      ></div>
+      <div className="editing-users-toast"></div>
       <ErrorBoundary
         onError={(error) => {
           console.error('App error boundary caught:', error);
