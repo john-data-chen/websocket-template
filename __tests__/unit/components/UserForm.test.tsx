@@ -11,6 +11,14 @@ vi.mock('@/hooks/useIsMobileScreen', () => ({
 vi.mock('@/hooks/useWebSocket', () => ({
   useWebSocket: () => ({ sendMessage: vi.fn() })
 }));
+
+vi.mock('@/hooks/useWebSocketEditing', () => ({
+  useWebSocketEditing: () => ({
+    sendMessage: vi.fn(),
+    clearEditingNotification: vi.fn(),
+    hideToast: vi.fn()
+  })
+}));
 vi.mock('@/stores/useSessionStore', () => ({
   useSessionStore: () => ({ user: { name: 'Mark.S' } })
 }));
