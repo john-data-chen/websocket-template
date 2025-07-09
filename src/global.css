@@ -34,15 +34,6 @@
   opacity: 0.6;
 }
 
-/* Toast */
-.toast-error {
-  border-radius: 0.5rem;
-  border: 1px solid #fecaca;
-  background-color: #fef2f2;
-  padding: 0.75rem;
-  color: #b91c1c;
-}
-
 @theme inline {
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
