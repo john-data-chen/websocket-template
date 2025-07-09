@@ -22,7 +22,12 @@ import { FORM_ATTRIBUTES } from '@/constants/formAttribute';
 import { WEBSOCKET_URL } from '@/constants/websocket';
 import { useIsMobileScreen } from '@/hooks/useIsMobileScreen';
 import { useWebSocket } from '@/hooks/useWebSocket';
-import { descriptionSchema, emailSchema, nameSchema } from '@/lib/validation';
+import {
+  descriptionSchema,
+  emailSchema,
+  isActiveSchema,
+  nameSchema
+} from '@/lib/validation';
 import { useSessionStore } from '@/stores/useSessionStore';
 import type { User } from '@/types/user';
 import type { WebSocketMessage } from '@/types/websocket';
@@ -36,7 +41,7 @@ import * as z from 'zod';
 const formSchema = z.object({
   name: nameSchema,
   email: emailSchema,
-  isActive: z.boolean().default(true),
+  isActive: isActiveSchema,
   description: descriptionSchema
 });
 
