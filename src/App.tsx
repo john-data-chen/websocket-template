@@ -1,6 +1,5 @@
 import { Analytics } from '@vercel/analytics/react';
 import { useEffect, useState } from 'react';
-import { Toaster } from 'sonner';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { ErrorFallback } from './components/ErrorFallback';
 import { Button } from './components/ui/button';
@@ -8,6 +7,7 @@ import { UserInfo } from './components/UserInfo';
 import { UsernameDialog } from './components/UsernameDialog';
 import UserTable from './components/UserTable';
 import { APP_TEXTS } from './constants/appTexts';
+import { TOAST_CLASS } from './constants/toast';
 import { useAuth } from './hooks/useAuth';
 import { useWebSocketActions } from './stores/useWebSocketStore';
 
@@ -30,7 +30,7 @@ function App() {
   return (
     <>
       <Analytics />
-      <Toaster position="bottom-right" richColors />
+      <div className={TOAST_CLASS}></div>
       <ErrorBoundary
         onError={(error) => {
           console.error('App error boundary caught:', error);

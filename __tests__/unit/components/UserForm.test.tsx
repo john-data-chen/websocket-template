@@ -8,10 +8,16 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 vi.mock('@/hooks/useIsMobileScreen', () => ({
   useIsMobileScreen: () => false
 }));
-const mockSendMessage = vi.fn();
-
 vi.mock('@/hooks/useWebSocket', () => ({
-  useWebSocket: () => ({ sendMessage: mockSendMessage })
+  useWebSocket: () => ({ sendMessage: vi.fn() })
+}));
+
+vi.mock('@/hooks/useWebSocketEditing', () => ({
+  useWebSocketEditing: () => ({
+    sendMessage: vi.fn(),
+    clearEditingNotification: vi.fn(),
+    hideToast: vi.fn()
+  })
 }));
 vi.mock('@/stores/useSessionStore', () => ({
   useSessionStore: () => ({ user: { name: 'Mark.S' } })
@@ -29,7 +35,7 @@ describe('UserForm', () => {
   };
 
   const testUser = {
-    id: '1',
+    id: 1,
     name: TEST_USER,
     email: TEST_EMAIL,
     isActive: false,
@@ -38,7 +44,6 @@ describe('UserForm', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    mockSendMessage.mockClear();
     localStorage.clear();
   });
 

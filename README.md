@@ -17,7 +17,7 @@ This project showcases a production-ready SPA architecture built with React and 
 - Input username and click confirm button to login, pops a welcome message with username, save username to session storage.
 - Display a list of users, and basic CRUD operations.
 - Use form validation to validate inputs. (Use Zod built-in validation to validate email, more details in Technical Decisions)
-- Pops a toaster message when multiple users are editing a user at the same time. (Use Socket.io and Sonner)
+- Pops a toaster message when multiple users are editing a user at the same time.
 
 🌟 Key Accomplishments
 
@@ -92,7 +92,7 @@ pnpm build
 - Unit Tests: Focused on critical store logic, complex form validations, and isolated component behaviors, ensuring granular code reliability.
 - Coverage: Maintained above 80% (verified via `vitest run --coverage`), reflecting a commitment to robust code coverage without sacrificing test quality.
 
-<img src="./public/screenshots/test coverage.png" alt="Coverage" width="723" height="472">
+<img src="./public/screenshots/test coverage.png" alt="Test Coverage" width="723" height="472">
 
 - E2E Tests: Critical user flows, such as the Login modal, are validated end-to-end using Playwright, simulating real user interactions to guarantee system integrity.
 - Cross-browser Testing Strategy: Ensures consistent functionality and user experience across a carefully selected range of desktop and mobile browsers based on market share, mitigating compatibility issues.
@@ -131,16 +131,6 @@ src/
 - **Reason**: Internal implementation of Radix UI's Dialog component
 
 ### Future Improvements
-
-#### Enhancing ID Strategy
-
-- Current: Used UUIDs locally to prevent collisions; converted to numbers in WebSocket payloads to match spec. Balances best practice with compliance.
-- Future: Consider full UUID support if backend allows. Current setup shows flexibility and attention to both quality and spec alignment.
-
-#### Enhancing Form Submission UX
-
-- Current: "Save" button disabled until all fields are valid, per specification.
-- Future: Enabling the "Save" button earlier, coupled with real-time, field-specific error messages, generally offers a more intuitive user experience. This allows users to proactively address issues without waiting for global validation, potentially improving form completion and user satisfaction.
 
 #### Dark mode and theme switching
 

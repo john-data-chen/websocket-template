@@ -20,18 +20,17 @@ import {
 } from '@/components/ui/table';
 import { USER_LIST as mockUsers } from '@/constants/mockData';
 import { TABLE_TEXTS } from '@/constants/tableTexts';
-import { generateUuid } from '@/lib/recordIdConvert';
 import type { User } from '@/types/user';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
 import UserForm from './UserForm';
 
 export default function UserTable() {
-  // Generate unique IDs for mock users using UUID
+  // Convert mock user IDs to timestamps to ensure uniqueness
   const [users, setUsers] = useState<User[]>(() =>
     mockUsers.map((user) => ({
       ...user,
-      id: generateUuid() // Generate a unique ID using our custom UUID
+      id: Date.now() + Math.floor(Math.random() * 1000) // Add random number to ensure uniqueness in the same millisecond
     }))
   );
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -70,8 +69,10 @@ export default function UserTable() {
         )
       );
     } else {
-      // Add new user with a new UUID
-      setUsers([...users, { ...data, id: generateUuid() }]);
+      // Add new user with a new timestamp-based ID
+      // Adding a random number to ensure uniqueness even if called in the same millisecond
+      const newId = Date.now() + Math.floor(Math.random() * 1000);
+      setUsers([...users, { ...data, id: newId }]);
     }
     setIsFormOpen(false);
   };
@@ -81,22 +82,18 @@ export default function UserTable() {
       className="container mx-auto py-4 sm:py-8"
       data-testid="user-table-container"
     >
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-4 sm:mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold">
-          {TABLE_TEXTS.PAGE_TITLE}
-        </h1>
-        <div className="w-full sm:w-auto">
-          <Button
-            variant="outline"
-            size="sm"
-            className="ml-auto h-8 lg:flex"
-            onClick={handleAddUser}
-            data-testid="add-user-button"
-            aria-label="Add new user"
-          >
-            {TABLE_TEXTS.BUTTONS.ADD_USER}
-          </Button>
-        </div>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">{TABLE_TEXTS.PAGE_TITLE}</h1>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8"
+          onClick={handleAddUser}
+          data-testid="add-user-button"
+          aria-label="Add new user"
+        >
+          {TABLE_TEXTS.BUTTONS.ADD_USER}
+        </Button>
       </div>
 
       <div className="rounded-md border overflow-x-auto">
