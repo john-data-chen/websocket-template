@@ -20,6 +20,7 @@ import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { FORM_ATTRIBUTES } from '@/constants/formAttribute';
 import { WEBSOCKET_URL } from '@/constants/websocket';
+import { useFormDraft } from '@/hooks/useFormDraft';
 import { useIsMobileScreen } from '@/hooks/useIsMobileScreen';
 import { useWebSocket } from '@/hooks/useWebSocket';
 import {
@@ -32,7 +33,6 @@ import { useSessionStore } from '@/stores/useSessionStore';
 import type { User } from '@/types/user';
 import type { WebSocketMessage } from '@/types/websocket';
 import { zodResolver } from '@hookform/resolvers/zod';
-import debounce from 'lodash.debounce';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { toast } from 'sonner';
@@ -131,68 +131,16 @@ export default function UserForm({
     []
   );
 
-  // Generate draft key
-  const draftKey = useMemo(
-    () => (user ? `user_draft_${user.id}` : 'user_draft_new'),
-    [user]
-  );
-
   const form = useForm({
     resolver: zodResolver(formSchema),
     defaultValues: defaultValues
   });
 
-  // Save draft to localStorage
-  const saveDraft = useCallback(
-    (data: UserFormValues) => {
-      try {
-        localStorage.setItem(draftKey, JSON.stringify(data));
-      } catch (error) {
-        console.error('Failed to save draft:', error);
-      }
-    },
-    [draftKey]
-  );
-
-  // Load draft from localStorage
-  const loadDraft = useCallback(() => {
-    try {
-      const draft = localStorage.getItem(draftKey);
-      return draft ? JSON.parse(draft) : null;
-    } catch (error) {
-      console.error('Failed to load draft:', error);
-      return null;
-    }
-  }, [draftKey]);
-
-  // Clear draft
-  const clearDraft = useCallback(() => {
-    try {
-      localStorage.removeItem(draftKey);
-    } catch (error) {
-      console.error('Failed to clear draft:', error);
-    }
-  }, [draftKey]);
-
-  // Debounced save function
-  const debouncedSaveDraft = useMemo(
-    () =>
-      debounce((data: UserFormValues) => {
-        saveDraft(data);
-      }, FORM_ATTRIBUTES.DEBOUNCE.DRAFT_SAVE),
-    [saveDraft]
-  );
-
-  // Listen to form changes and automatically save draft
-  useEffect(() => {
-    const subscription = form.watch((value) => {
-      debouncedSaveDraft(value as UserFormValues);
-    });
-    return () => {
-      subscription.unsubscribe();
-      debouncedSaveDraft.cancel();
-    };
-  }, [form, debouncedSaveDraft]);
+  // Use form draft hook
+  const { loadDraft, clearDraft, debouncedSaveDraft } = useFormDraft({
+    form,
+    key: user ? `user_draft_${user.id}` : 'user_draft_new'
+  });
 
   // Track if we've sent a stop_editing message to prevent duplicates
   const hasSentStopMessage = useRef(false);
