@@ -66,13 +66,22 @@ export default function UserForm({
   const isMobile = useIsMobileScreen();
 
   // WebSocket connection for editing status
-  const { sendMessage, clearEditingNotification } = useWebSocketEditing({
-    recordId: user?.id?.toString() || null,
-    currentUserName: currentUser?.name || null,
-    onEditingUsersChange: (users) => {
-      console.log('Other users editing (unique):', users);
+  const { sendMessage, clearEditingNotification, hideToast } =
+    useWebSocketEditing({
+      recordId: user?.id?.toString() || null,
+      currentUserName: currentUser?.name || null,
+      onEditingUsersChange: (users) => {
+        console.log('Other users editing (unique):', users);
+      }
+    });
+
+  // Hide toast when the form is closed
+  useEffect(() => {
+    if (!open) {
+      hideToast();
     }
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   // Track if we've sent a stop_editing message to prevent duplicates
   const hasSentStopMessage = useRef(false);

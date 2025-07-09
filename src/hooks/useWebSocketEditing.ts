@@ -40,10 +40,14 @@ export function useWebSocketEditing({
 
   // Hide toast
   const hideToast = useCallback(() => {
-    const element = document.getElementById(toastId) as HTMLDivElement;
+    const element = document.querySelector(
+      `.${toastId}`
+    ) as HTMLDivElement | null;
     if (element) {
       element.style.display = 'none';
       console.log('Toast hidden');
+    } else {
+      console.error('Toast element not found when trying to hide');
     }
   }, [toastId]);
 
@@ -162,9 +166,16 @@ export function useWebSocketEditing({
     };
   }, [recordId, currentUserName, sendMessage, hideToast]);
 
+  // Memoize the clearEditingNotification function to prevent unnecessary re-renders
+  const clearEditingNotification = useCallback(() => {
+    hideToast();
+    setEditingUsers([]);
+  }, [hideToast]);
+
   return {
     editingUsers,
     sendMessage,
-    clearEditingNotification: hideToast
+    hideToast,
+    clearEditingNotification
   };
 }
