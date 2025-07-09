@@ -82,22 +82,18 @@ export default function UserTable() {
       className="container mx-auto py-4 sm:py-8"
       data-testid="user-table-container"
     >
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-4 sm:space-y-0 mb-4 sm:mb-6">
-        <h1 className="text-xl sm:text-2xl font-bold">
-          {TABLE_TEXTS.PAGE_TITLE}
-        </h1>
-        <div className="w-full sm:w-auto">
-          <Button
-            variant="outline"
-            size="sm"
-            className="ml-auto h-8 lg:flex"
-            onClick={handleAddUser}
-            data-testid="add-user-button"
-            aria-label="Add new user"
-          >
-            {TABLE_TEXTS.BUTTONS.ADD_USER}
-          </Button>
-        </div>
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-2xl font-bold">{TABLE_TEXTS.PAGE_TITLE}</h1>
+        <Button
+          variant="outline"
+          size="sm"
+          className="h-8"
+          onClick={handleAddUser}
+          data-testid="add-user-button"
+          aria-label="Add new user"
+        >
+          {TABLE_TEXTS.BUTTONS.ADD_USER}
+        </Button>
       </div>
 
       <div className="rounded-md border overflow-x-auto">
