@@ -23,9 +23,7 @@ export function useWebSocketEditing({
   // Show toast with message
   const showToast = useCallback(
     (message: string) => {
-      const element = document.querySelector(
-        `.${toastId}`
-      ) as HTMLDivElement | null;
+      const element = document.querySelector<HTMLElement>(`.${toastId}`);
       if (element) {
         element.textContent = message;
         element.style.display = 'block';
@@ -38,9 +36,7 @@ export function useWebSocketEditing({
 
   // Hide toast
   const hideToast = useCallback(() => {
-    const element = document.querySelector(
-      `.${toastId}`
-    ) as HTMLDivElement | null;
+    const element = document.querySelector<HTMLElement>(`.${toastId}`);
     if (element) {
       element.style.display = 'none';
     }
