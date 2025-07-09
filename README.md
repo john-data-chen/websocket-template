@@ -132,10 +132,15 @@ src/
 
 ### Future Improvements
 
-#### Enhancing Form Submission UX (Disabled Save Button vs. Real-time Feedback)
+#### Enhancing ID Strategy
+
+- Current: Used UUIDs locally to prevent collisions; converted to numbers in WebSocket payloads to match spec. Balances best practice with compliance.
+- Future: Consider full UUID support if backend allows. Current setup shows flexibility and attention to both quality and spec alignment.
+
+#### Enhancing Form Submission UX
 
 - Current: "Save" button disabled until all fields are valid, per specification.
-- Alternative UX: Enabling the "Save" button earlier, coupled with real-time, field-specific error messages, generally offers a more intuitive user experience. This allows users to proactively address issues without waiting for global validation, potentially improving form completion and user satisfaction. This was a deliberate choice to adhere strictly to the assignment's explicit requirement, while acknowledging a common UX best practice for future iterations.
+- Future: Enabling the "Save" button earlier, coupled with real-time, field-specific error messages, generally offers a more intuitive user experience. This allows users to proactively address issues without waiting for global validation, potentially improving form completion and user satisfaction.
 
 #### Dark mode and theme switching
 
