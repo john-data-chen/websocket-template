@@ -7,6 +7,7 @@ import { UserInfo } from './components/UserInfo';
 import { UsernameDialog } from './components/UsernameDialog';
 import UserTable from './components/UserTable';
 import { APP_TEXTS } from './constants/appTexts';
+import { TOAST_CLASS } from './constants/toast';
 import { useAuth } from './hooks/useAuth';
 import { useWebSocketActions } from './stores/useWebSocketStore';
 
@@ -29,7 +30,7 @@ function App() {
   return (
     <>
       <Analytics />
-      <div className="editing-users-toast"></div>
+      <div className={TOAST_CLASS}></div>
       <ErrorBoundary
         onError={(error) => {
           console.error('App error boundary caught:', error);

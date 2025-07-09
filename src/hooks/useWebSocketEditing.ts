@@ -1,5 +1,5 @@
 import { FORM_ATTRIBUTES } from '@/constants/formAttribute';
-import { TOAST_MESSAGES } from '@/constants/toast';
+import { TOAST_CLASS, TOAST_MESSAGES } from '@/constants/toast';
 import { WEBSOCKET_URL } from '@/constants/websocket';
 import type { WebSocketMessage } from '@/types/websocket';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -18,13 +18,15 @@ export function useWebSocketEditing({
 }: UseWebSocketEditingOptions) {
   console.log('useWebSocketEditing hook is running with recordId:', recordId);
   const [editingUsers, setEditingUsers] = useState<string[]>([]);
-  const toastId = 'editing-users-toast';
+  const toastId = TOAST_CLASS;
   const hasSentStopMessage = useRef(false);
 
   // Show toast with message
   const showToast = useCallback(
     (message: string) => {
-      const element = document.getElementById(toastId) as HTMLDivElement;
+      const element = document.querySelector(
+        `.${toastId}`
+      ) as HTMLDivElement | null;
       if (element) {
         element.textContent = message;
         element.style.display = 'block';
