@@ -20,10 +20,10 @@ import {
 } from '@/components/ui/table';
 import { USER_LIST as mockUsers } from '@/constants/mockData';
 import { TABLE_TEXTS } from '@/constants/tableTexts';
+import { generateUuid } from '@/lib/recordIdConvert';
 import type { User } from '@/types/user';
 import { Pencil, Trash2 } from 'lucide-react';
 import { useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
 import UserForm from './UserForm';
 
 export default function UserTable() {
@@ -31,7 +31,7 @@ export default function UserTable() {
   const [users, setUsers] = useState<User[]>(() =>
     mockUsers.map((user) => ({
       ...user,
-      id: uuidv4() // Generate a unique ID using UUID v4
+      id: generateUuid() // Generate a unique ID using our custom UUID
     }))
   );
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -71,7 +71,7 @@ export default function UserTable() {
       );
     } else {
       // Add new user with a new UUID
-      setUsers([...users, { ...data, id: uuidv4() }]);
+      setUsers([...users, { ...data, id: generateUuid() }]);
     }
     setIsFormOpen(false);
   };
