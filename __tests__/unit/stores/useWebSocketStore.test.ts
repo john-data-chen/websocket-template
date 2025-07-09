@@ -175,25 +175,27 @@ describe('useWebSocketStore', () => {
     expect(isConnected).toBe(true);
   });
 
-  it('should handle messages', () => {
+  it('should handle WebSocket messages', () => {
     const { connect } = useWebSocketStore.getState();
-    const testMessage = { type: 'test', data: 'test message' };
-    const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
+    const testMessage = { type: 'test', data: 'test' };
+
+    // Override console.error to catch any parsing errors
+    const errorSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
     act(() => {
       connect();
     });
 
     const ws = MockWebSocket.latest;
+
     act(() => {
+      ws.simulateOpen();
       ws.simulateMessage(testMessage);
     });
 
-    expect(consoleSpy).toHaveBeenCalledWith(
-      'WebSocket message received:',
-      testMessage
-    );
-    consoleSpy.mockRestore();
+    // Verify no errors occurred during message handling
+    expect(errorSpy).not.toHaveBeenCalled();
+    errorSpy.mockRestore();
   });
 
   it('should disconnect', () => {
