@@ -22,6 +22,7 @@ import { FORM_ATTRIBUTES } from '@/constants/formAttribute';
 import { WEBSOCKET_URL } from '@/constants/websocket';
 import { useIsMobileScreen } from '@/hooks/useIsMobileScreen';
 import { useWebSocket } from '@/hooks/useWebSocket';
+import { generateNumericId, isNumericId } from '@/lib/recordIdConvert';
 import { descriptionSchema, emailSchema, nameSchema } from '@/lib/validation';
 import { useSessionStore } from '@/stores/useSessionStore';
 import type { User } from '@/types/user';
@@ -192,38 +193,18 @@ export default function UserForm({
   // Track if we've sent a stop_editing message to prevent duplicates
   const hasSentStopMessage = useRef(false);
 
-  // When the form opens/closes, send corresponding WebSocket messages
-  useEffect(() => {
-    if (!user?.id) return;
+  // Helper function to send WebSocket messages with proper ID conversion
+  const sendWsMessage = useCallback(
+    (type: 'start_editing' | 'stop_editing') => {
+      if (!user?.id) return;
 
-    if (open) {
-      // Reset the flag when opening the form
-      hasSentStopMessage.current = false;
+      // Convert UUID to numeric ID for WebSocket communication
+      const recordId = isNumericId(user.id) ? user.id : generateNumericId();
 
+      const userName = currentUser?.name ?? FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS;
       const message = {
-        type: 'start_editing' as const,
-        payload: {
-          recordId: user.id,
-          userName: currentUser?.name ?? FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS
-        }
-      };
-
-      console.log(
-        '[WebSocket] Sending message:',
-        JSON.stringify(message, null, 2)
-      );
-
-      sendMessage(message);
-    } else if (!hasSentStopMessage.current) {
-      // Only send stop_editing if we haven't sent it yet
-      hasSentStopMessage.current = true;
-
-      const message = {
-        type: 'stop_editing' as const,
-        payload: {
-          recordId: user.id,
-          userName: currentUser?.name ?? FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS
-        }
+        type,
+        payload: { recordId, userName }
       };
 
       console.log(
@@ -233,26 +214,29 @@ export default function UserForm({
 
       sendMessage(message);
       setEditingUsers([]);
+    },
+    [user?.id, currentUser?.name, sendMessage]
+  );
+
+  // When the form opens/closes, send corresponding WebSocket messages
+  useEffect(() => {
+    if (!user?.id) return;
+
+    if (open) {
+      // Reset the flag when opening the form
+      hasSentStopMessage.current = false;
+      sendWsMessage('start_editing');
+    } else if (!hasSentStopMessage.current) {
+      // Only send stop_editing if we haven't sent it yet
+      hasSentStopMessage.current = true;
+      sendWsMessage('stop_editing');
     }
 
     // Cleanup function to send stop_editing when component unmounts
     return () => {
       if (open && user?.id && !hasSentStopMessage.current) {
         hasSentStopMessage.current = true;
-        const message = {
-          type: 'stop_editing' as const,
-          payload: {
-            recordId: user.id,
-            userName: currentUser?.name ?? FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS
-          }
-        };
-
-        console.log(
-          '[WebSocket] Cleanup - Sending message:',
-          JSON.stringify(message, null, 2)
-        );
-
-        sendMessage(message);
+        sendWsMessage('stop_editing');
       }
 
       // Clear any pending draft saves
@@ -264,7 +248,14 @@ export default function UserForm({
         toastIdRef.current = null;
       }
     };
-  }, [open, user?.id, currentUser?.name, sendMessage, debouncedSaveDraft]);
+  }, [
+    open,
+    user?.id,
+    currentUser?.name,
+    sendMessage,
+    debouncedSaveDraft,
+    sendWsMessage
+  ]);
 
   // When the form opens, reset the form and load the draft
   useEffect(() => {
