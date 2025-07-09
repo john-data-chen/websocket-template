@@ -92,16 +92,14 @@ export function useWebSocketEditing({
           onEditingUsersChange(otherUsers);
         }
 
-        // Show or update the toast notification
+        // Show or update the toast notification with current editing users
         try {
+          // Only show toast if there are other users editing
           if (otherUsers.length > 0) {
-            const userList = otherUsers.join(', ');
-            const notificationMessage =
-              otherUsers.length === 1
-                ? `${userList} is editing this record`
-                : `Multiple users are editing this record: ${userList}`;
+            const userList = otherUsers.join('、');
+            const notificationMessage = `正在編輯的使用者：${userList}`;
 
-            console.log('Showing toast:', notificationMessage);
+            console.log('Showing toast with users:', otherUsers);
             showToast(notificationMessage);
           } else {
             console.log('No other users editing, hiding toast');

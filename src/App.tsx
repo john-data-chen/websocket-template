@@ -34,18 +34,19 @@ function App() {
         id="editing-users-toast"
         style={{
           position: 'fixed',
-          top: '1rem',
+          bottom: '1rem',
           right: '1rem',
+          backgroundColor: 'rgba(0, 0, 0, 0.9)',
+          color: 'white',
+          padding: '0.75rem 1.25rem',
+          borderRadius: '0.375rem',
           zIndex: 9999,
           display: 'none',
-          backgroundColor: '#ffffff',
-          color: '#000000',
-          border: '1px solid #e2e8f0',
-          padding: '12px',
-          borderRadius: '4px',
-          boxShadow: '0 2px 10px rgba(0,0,0,0.1)',
-          maxWidth: '300px',
-          wordBreak: 'break-word'
+          maxWidth: '320px',
+          boxShadow: '0 4px 12px rgba(0, 0, 0, 0.15)',
+          fontSize: '0.9375rem',
+          lineHeight: '1.5',
+          backdropFilter: 'blur(4px)'
         }}
       ></div>
       <ErrorBoundary
