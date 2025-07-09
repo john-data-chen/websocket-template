@@ -16,8 +16,8 @@ This project showcases a production-ready SPA architecture built with React and 
 - Pops a dialog to ask for username when user first visits the page.
 - Input username and click confirm button to login, pops a welcome message with username, save username to session storage.
 - Display a list of users, and basic CRUD operations.
-- Use form validation to validate inputs. (Used Zod self built validation to validate email for consistency)
-- Pops a toaster message when multiple users are editing a user at the same time. (Used Socket.io and Sonner)
+- Use form validation to validate inputs. (Use Zod built-in validation to validate email, more details in Technical Decisions)
+- Pops a toaster message when multiple users are editing a user at the same time. (Use Socket.io and Sonner)
 
 🌟 Key Accomplishments
 
@@ -39,7 +39,7 @@ This project showcases a production-ready SPA architecture built with React and 
 - **UI**: [Tailwind CSS](https://tailwindcss.com/), [Shadcn/UI](https://ui.shadcn.com/) - for consistent, responsive, and scalable styling, enabling rapid and maintainable UI development
 - **Testing**: [Vitest](https://vitest.dev/), [Playwright](https://playwright.dev/) - easier to setup and faster execution than Jest and Cypress, chosen for their efficiency and comprehensive testing capabilities
 - **State Management**: [Zustand](https://zustand-demo.pmnd.rs/) - minimal and testable global state management, 40% code reduction compared to Redux
-- **Forms**: [React Hook Form](https://react-hook-form.com/), [Zod](https://zod.dev/) - composable form logic and schema validation, Zod's built-in email validation (.email()) was specifically chosen as a reliable and industry-standard approach, aligning with RFC 5322 specifications for comprehensive email format checking, thereby streamlining form development and ensuring data integrity.
+- **Forms**: [React Hook Form](https://react-hook-form.com/), [Zod](https://zod.dev/) - composable form logic and schema validation. [Zod's built-in email validation](https://zod.dev/api#emails) was chosen for realistic coverage without regex complexity or code smell.
 - **Websocket**: [Socket.io](https://socket.io/) - for intuitive WebSocket API and event abstraction, simplifying real-time communication implementation
 - **CI/CD**: [GitHub Actions](https://github.com/features/actions), [Vercel](https://vercel.com/home), [Codecov](https://codecov.io/), [SonarQube](https://sonarcloud.io/) - Every pull request triggers a comprehensive pipeline, enforcing code quality gates and ensuring production-readiness through automated testing and deployment
 
