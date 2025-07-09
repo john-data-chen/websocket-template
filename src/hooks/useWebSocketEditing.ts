@@ -1,4 +1,5 @@
 import { FORM_ATTRIBUTES } from '@/constants/formAttribute';
+import { TOAST_MESSAGES } from '@/constants/toast';
 import { WEBSOCKET_URL } from '@/constants/websocket';
 import type { WebSocketMessage } from '@/types/websocket';
 import { useCallback, useEffect, useRef, useState } from 'react';
@@ -97,7 +98,7 @@ export function useWebSocketEditing({
           // Only show toast if there are other users editing
           if (otherUsers.length > 0) {
             const userList = otherUsers.join('、');
-            const notificationMessage = `正在編輯的使用者：${userList}`;
+            const notificationMessage = `${TOAST_MESSAGES.EDITING_USERS}${userList}`;
 
             console.log('Showing toast with users:', otherUsers);
             showToast(notificationMessage);

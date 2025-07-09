@@ -1,0 +1,3 @@
+export const TOAST_MESSAGES = {
+  EDITING_USERS: '正在編輯的使用者：'
+} as const;
