@@ -151,7 +151,15 @@ export default function UserForm({
             userName: currentUser?.name ?? FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS
           }
         };
+        console.log(
+          '[UserForm] Sending stop_editing message:',
+          JSON.stringify(message)
+        );
         sendMessage(message);
+      } else if (!user?.id) {
+        console.log('[UserForm] No user ID available, skipping stop_editing');
+      } else if (hasSentStopMessage.current) {
+        console.log('[UserForm] stop_editing already sent, skipping');
       }
 
       // Clear any pending draft saves
@@ -428,9 +436,7 @@ export default function UserForm({
                   !form.formState.isValid || form.formState.isSubmitting
                 }
               >
-                {user
-                  ? FORM_ATTRIBUTES.BUTTONS.UPDATE
-                  : FORM_ATTRIBUTES.BUTTONS.SUBMIT}
+                {FORM_ATTRIBUTES.BUTTONS.SAVE}
               </Button>
             </div>
           </form>

@@ -59,6 +59,7 @@ export function useWebSocketEditing({
             !prevUsers.every((user, index) => user === otherUsers[index]);
 
           if (shouldUpdate) {
+            // in development, add a log here and it will pop twice because of the React StrictMode, this is not a bug, and won't affect the production
             console.log(
               '[useWebSocketEditing] Updating editing users:',
               otherUsers
