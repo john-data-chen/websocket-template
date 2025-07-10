@@ -146,3 +146,8 @@ src/
 
 - Current: only Chinese is supported
 - Future: support English and other languages
+
+#### WebSocket Mocking Test Server
+
+- Current: not mocked
+- Future: mock websocket server for testing
