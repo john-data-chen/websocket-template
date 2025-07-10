@@ -110,23 +110,14 @@ export function useWebSocket(url: string, options: WebSocketOptions = {}) {
 
       socket.onmessage = handleMessage;
 
-      socket.onclose = (event) => {
+      socket.onclose = () => {
         if (!isMounted.current) return;
-
-        console.log(
-          `[WebSocket] Connection closed. Code: ${event.code}, Reason: ${event.reason || 'No reason provided'}`
-        );
-
         setIsConnected(false);
         callbacksRef.current.onClose?.();
 
         // Auto-reconnect logic
         if (reconnectAttempts.current < maxReconnectAttempts) {
           const delay = getReconnectDelay(reconnectAttempts.current);
-          console.log(
-            `[WebSocket] Attempting to reconnect in ${delay}ms (attempt ${reconnectAttempts.current + 1}/${maxReconnectAttempts})...`
-          );
-
           reconnectTimer.current = setTimeout(() => {
             if (isMounted.current) {
               reconnectAttempts.current += 1;
@@ -166,7 +157,7 @@ export function useWebSocket(url: string, options: WebSocketOptions = {}) {
 
   const sendMessage = useCallback((message: WebSocketMessage) => {
     if (!ws.current) {
-      console.warn('WebSocket is not initialized');
+      // console.warn('WebSocket is not initialized');
       return false;
     }
 
@@ -180,9 +171,9 @@ export function useWebSocket(url: string, options: WebSocketOptions = {}) {
       }
     }
 
-    console.warn(
-      `WebSocket is not connected. ReadyState: ${ws.current.readyState}`
-    );
+    //console.warn(
+    //  `WebSocket is not connected. ReadyState: ${ws.current.readyState}`
+    //);
     return false;
   }, []);
 
@@ -245,10 +236,6 @@ export function useWebSocket(url: string, options: WebSocketOptions = {}) {
         }
 
         ws.current = null;
-      }
-
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('[WebSocket] Cleanup completed');
       }
     };
   }, [connect, clearTimers]);

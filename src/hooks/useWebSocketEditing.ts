@@ -38,11 +38,6 @@ export function useWebSocketEditing({
           return;
         }
 
-        console.log(
-          '[useWebSocketEditing] Received editing_status_update:',
-          JSON.stringify(message.payload)
-        );
-
         // Filter out the current user from the list of editing users
         const otherUsers = message.payload.users.filter(
           (user: string) =>
@@ -60,13 +55,8 @@ export function useWebSocketEditing({
 
           if (shouldUpdate) {
             // in development, add a log here and it will pop twice because of the React StrictMode, this is not a bug, and won't affect the production
-            console.log(
-              '[useWebSocketEditing] Updating editing users:',
-              otherUsers
-            );
             return otherUsers;
           }
-          console.log('[useWebSocketEditing] No change in editing users list');
           return prevUsers;
         });
 
@@ -121,13 +111,6 @@ export function useWebSocketEditing({
   useEffect(() => {
     if (!recordId) return;
 
-    console.log(
-      '[useWebSocketEditing] Start editing record:',
-      recordId,
-      'by user:',
-      currentUserName
-    );
-
     // Reset the flag when recordId changes
     hasSentStopMessage.current = false;
 
@@ -139,12 +122,6 @@ export function useWebSocketEditing({
         userName: currentUserName || FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS
       }
     };
-    console.log(
-      '[useWebSocketEditing] Sending start_editing for record:',
-      recordId,
-      'user:',
-      currentUserName
-    );
     sendMessage(message);
 
     // Cleanup function
@@ -159,17 +136,11 @@ export function useWebSocketEditing({
             userName: currentUserName || FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS
           }
         };
-        console.log(
-          '[useWebSocketEditing] Sending stop_editing for record:',
-          recordId,
-          'user:',
-          currentUserName
-        );
         sendMessage(message);
       } else {
-        console.log(
-          '[useWebSocketEditing] Skip sending stop_editing - already sent or no recordId'
-        );
+        // console.log(
+        //   '[useWebSocketEditing] Skip sending stop_editing - already sent or no recordId'
+        // );
       }
       clearEditingNotification();
     };
