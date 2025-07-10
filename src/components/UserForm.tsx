@@ -311,8 +311,10 @@ export default function UserForm({
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
                           <button
-                            className="form-element flex w-full items-center justify-between text-left text-foreground"
+                            className="form-element min-h-[44px] flex w-full items-center justify-between text-left text-foreground"
                             type="button"
+                            aria-haspopup="true"
+                            aria-expanded={open}
                           >
                             <span className="truncate">
                               {field.value
@@ -337,12 +339,12 @@ export default function UserForm({
                           </button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent
-                          className="w-[--radix-dropdown-menu-trigger-width] p-1.5 bg-background rounded-lg border border-border shadow-md"
+                          className="w-[--radix-dropdown-menu-trigger-width] p-1.5 bg-background rounded-lg border border-border shadow-md font-sans text-base"
                           align="start"
                           sideOffset={4}
                         >
                           <DropdownMenuItem
-                            className="flex items-center justify-between px-4 py-2.5 text-base text-foreground hover:bg-accent hover:text-accent-foreground rounded-md transition-colors"
+                            className="flex items-center justify-between px-4 py-2.5 text-base text-foreground hover:bg-accent hover:text-accent-foreground rounded-md transition-colors font-sans"
                             onClick={(e) => {
                               e.preventDefault();
                               field.onChange(true);
@@ -356,7 +358,7 @@ export default function UserForm({
                             )}
                           </DropdownMenuItem>
                           <DropdownMenuItem
-                            className="flex items-center justify-between px-4 py-2.5 text-base text-foreground hover:bg-accent hover:text-accent-foreground rounded-md transition-colors"
+                            className="flex items-center justify-between px-4 py-2.5 text-base text-foreground hover:bg-accent hover:text-accent-foreground rounded-md transition-colors font-sans"
                             onClick={(e) => {
                               e.preventDefault();
                               field.onChange(false);
