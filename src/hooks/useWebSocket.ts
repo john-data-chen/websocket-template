@@ -12,15 +12,30 @@ export interface WebSocketOptions {
   onReconnectFailed?: () => void;
 }
 
+/**
+ * Calculate reconnect delay using exponential backoff
+ * @param attempt - Current retry attempt number
+ * @returns Calculated delay in milliseconds
+ */
+const getReconnectDelay = (attempt: number) =>
+  Math.min(
+    WEBSOCKET_CONFIG.DEFAULT_RECONNECT_DELAY * Math.pow(2, attempt),
+    WEBSOCKET_CONFIG.MAX_RECONNECT_DELAY
+  );
+
 export function useWebSocket(url: string, options: WebSocketOptions = {}) {
+  // Destructure options with defaults
   const {
     onMessage,
     onOpen,
     onClose,
     onReconnectFailed,
     maxReconnectAttempts = WEBSOCKET_CONFIG.MAX_RECONNECT_ATTEMPTS,
-    reconnectDelay = WEBSOCKET_CONFIG.RECONNECT_DELAY,
-    maxWaitTime = WEBSOCKET_CONFIG.MAX_WAIT_TIME
+    // Keep these for backward compatibility
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    reconnectDelay: _reconnectDelay = WEBSOCKET_CONFIG.DEFAULT_RECONNECT_DELAY,
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    maxWaitTime: _maxWaitTime = WEBSOCKET_CONFIG.MAX_RECONNECT_DELAY
   } = options;
 
   const ws = useRef<WebSocket | null>(null);
@@ -58,10 +73,11 @@ export function useWebSocket(url: string, options: WebSocketOptions = {}) {
   const connect = useCallback(() => {
     if (!isMounted.current) return;
 
+    // Clean up existing connection if any
     if (ws.current) {
       ws.current.onopen = null;
       ws.current.onclose = null;
-      ws.current.onmessage = null;
+      ws.current.onerror = null;
       ws.current.close();
     }
 
@@ -74,53 +90,79 @@ export function useWebSocket(url: string, options: WebSocketOptions = {}) {
           socket.close();
           return;
         }
-        reconnectAttempts.current = 0;
+        reconnectAttempts.current = 0; // Reset retry counter
         setIsConnected(true);
         clearTimers();
         callbacksRef.current.onOpen?.();
-
-        // Handle incoming WebSocket messages
-        const handleMessage = (event: MessageEvent) => {
-          try {
-            const message = JSON.parse(event.data) as WebSocketMessage;
-            callbacksRef.current.onMessage?.(message);
-          } catch (error) {
-            console.error('Error parsing WebSocket message:', error);
-          }
-        };
-
-        socket.onmessage = handleMessage;
       };
 
-      socket.onclose = () => {
+      // Handle incoming messages
+      const handleMessage = (event: MessageEvent) => {
         if (!isMounted.current) return;
+
+        try {
+          const message = JSON.parse(event.data) as WebSocketMessage;
+          callbacksRef.current.onMessage?.(message);
+        } catch (error) {
+          console.error('[WebSocket] Error parsing message:', error);
+        }
+      };
+
+      socket.onmessage = handleMessage;
+
+      socket.onclose = (event) => {
+        if (!isMounted.current) return;
+
+        console.log(
+          `[WebSocket] Connection closed. Code: ${event.code}, Reason: ${event.reason || 'No reason provided'}`
+        );
 
         setIsConnected(false);
         callbacksRef.current.onClose?.();
 
-        // Attempt to reconnect
+        // Auto-reconnect logic
         if (reconnectAttempts.current < maxReconnectAttempts) {
-          const delay = Math.min(
-            reconnectDelay * Math.pow(2, reconnectAttempts.current),
-            maxWaitTime
+          const delay = getReconnectDelay(reconnectAttempts.current);
+          console.log(
+            `[WebSocket] Attempting to reconnect in ${delay}ms (attempt ${reconnectAttempts.current + 1}/${maxReconnectAttempts})...`
           );
 
-          reconnectAttempts.current += 1;
-          reconnectTimer.current = setTimeout(connect, delay);
+          reconnectTimer.current = setTimeout(() => {
+            if (isMounted.current) {
+              reconnectAttempts.current += 1;
+              connect();
+            }
+          }, delay);
         } else {
+          console.error('[WebSocket] Max reconnection attempts reached');
           callbacksRef.current.onReconnectFailed?.();
         }
       };
 
       socket.onerror = (error) => {
         if (!isMounted.current) return;
-
-        console.error('WebSocket error:', error);
+        console.error('[WebSocket] Connection error:', error);
       };
     } catch (error) {
-      console.error('Error creating WebSocket:', error);
+      console.error('[WebSocket] Error creating connection:', error);
+
+      // Attempt to reconnect on error
+      if (reconnectAttempts.current < maxReconnectAttempts) {
+        const delay = getReconnectDelay(reconnectAttempts.current);
+        reconnectTimer.current = setTimeout(() => {
+          if (isMounted.current) {
+            reconnectAttempts.current += 1;
+            connect();
+          }
+        }, delay);
+      } else {
+        console.error(
+          '[WebSocket] Max reconnection attempts reached after error'
+        );
+        callbacksRef.current.onReconnectFailed?.();
+      }
     }
-  }, [clearTimers, maxReconnectAttempts, maxWaitTime, reconnectDelay, url]);
+  }, [clearTimers, maxReconnectAttempts, url]);
 
   const sendMessage = useCallback((message: WebSocketMessage) => {
     if (!ws.current) {
@@ -164,16 +206,49 @@ export function useWebSocket(url: string, options: WebSocketOptions = {}) {
     isMounted.current = true;
     connect();
 
+    // Cleanup function
     return () => {
       isMounted.current = false;
       clearTimers();
 
+      // Clean up WebSocket connection
       if (ws.current) {
-        ws.current.onopen = null;
-        ws.current.onclose = null;
-        ws.current.onerror = null;
-        ws.current.close();
+        const { CLOSING, CLOSED } = WebSocket;
+
+        // Only clean up if not already closed or closing
+        if (
+          ws.current.readyState !== CLOSED &&
+          ws.current.readyState !== CLOSING
+        ) {
+          // Remove all event listeners
+          ws.current.onopen = null;
+          ws.current.onclose = null;
+          ws.current.onmessage = null;
+          ws.current.onerror = null;
+
+          // If connection is open, send close frame
+          if (ws.current.readyState === WebSocket.OPEN) {
+            try {
+              ws.current.close(
+                WEBSOCKET_CONFIG.NORMAL_CLOSURE,
+                'Component unmounting'
+              );
+            } catch (error) {
+              console.error(
+                '[WebSocket] Error while closing connection:',
+                error
+              );
+            }
+          } else {
+            ws.current.close();
+          }
+        }
+
         ws.current = null;
+      }
+
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('[WebSocket] Cleanup completed');
       }
     };
   }, [connect, clearTimers]);

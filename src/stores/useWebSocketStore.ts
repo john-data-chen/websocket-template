@@ -38,7 +38,7 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
         const { shouldReconnect } = get();
 
         if (shouldReconnect) {
-          const delay = WEBSOCKET_CONFIG.RECONNECT_DELAY;
+          const delay = WEBSOCKET_CONFIG.MAX_RECONNECT_DELAY;
 
           setTimeout(() => {
             if (get().shouldReconnect) {

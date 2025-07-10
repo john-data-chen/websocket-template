@@ -1,8 +1,9 @@
 import { FORM_ATTRIBUTES } from '@/constants/formAttribute';
-import { TOAST_CLASS, TOAST_MESSAGES } from '@/constants/toast';
-import { WEBSOCKET_URL } from '@/constants/websocket';
+import { TOAST_MESSAGES } from '@/constants/toast';
+import { MESSAGE_TYPES, WEBSOCKET_URL } from '@/constants/websocket';
 import type { WebSocketMessage } from '@/types/websocket';
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { useToast } from './useToast';
 import { useWebSocket } from './useWebSocket';
 
 interface UseWebSocketEditingOptions {
@@ -11,40 +12,37 @@ interface UseWebSocketEditingOptions {
   onEditingUsersChange?: (users: string[]) => void;
 }
 
+/**
+ * Hook to manage WebSocket-based collaborative editing state
+ * @param options - Configuration options including recordId, currentUserName, and callbacks
+ * @returns Object containing editing state and utility functions
+ */
 export function useWebSocketEditing({
   recordId,
   currentUserName,
   onEditingUsersChange
 }: UseWebSocketEditingOptions) {
   const [editingUsers, setEditingUsers] = useState<string[]>([]);
-  const toastId = TOAST_CLASS;
   const hasSentStopMessage = useRef(false);
-
-  // Show toast with message
-  const showToast = useCallback(
-    (message: string) => {
-      const element = document.querySelector<HTMLElement>(`.${toastId}`);
-      if (element) {
-        element.textContent = message;
-        element.style.display = 'block';
-      } else {
-        console.error('Toast element not found');
-      }
-    },
-    [toastId]
-  );
-
-  // Hide toast
-  const hideToast = useCallback(() => {
-    const element = document.querySelector<HTMLElement>(`.${toastId}`);
-    if (element) {
-      element.style.display = 'none';
-    }
-  }, [toastId]);
+  const { showToast, hideToast } = useToast();
 
   const handleWebSocketMessage = useCallback(
     (message: WebSocketMessage) => {
-      if (message.type === 'editing_status_update' && recordId) {
+      if (message.type === MESSAGE_TYPES.EDITING_STATUS_UPDATE && recordId) {
+        // Type guard to ensure we have the correct message type
+        if (!('payload' in message) || !('users' in message.payload)) {
+          console.error(
+            '[useWebSocketEditing] Invalid editing status update message:',
+            message
+          );
+          return;
+        }
+
+        console.log(
+          '[useWebSocketEditing] Received editing_status_update:',
+          JSON.stringify(message.payload)
+        );
+
         // Filter out the current user from the list of editing users
         const otherUsers = message.payload.users.filter(
           (user: string) =>
@@ -56,12 +54,18 @@ export function useWebSocketEditing({
         // Update the list of editing users
         setEditingUsers((prevUsers) => {
           // Only update if the list has actually changed
-          if (
+          const shouldUpdate =
             prevUsers.length !== otherUsers.length ||
-            !prevUsers.every((user, index) => user === otherUsers[index])
-          ) {
+            !prevUsers.every((user, index) => user === otherUsers[index]);
+
+          if (shouldUpdate) {
+            console.log(
+              '[useWebSocketEditing] Updating editing users:',
+              otherUsers
+            );
             return otherUsers;
           }
+          console.log('[useWebSocketEditing] No change in editing users list');
           return prevUsers;
         });
 
@@ -88,51 +92,87 @@ export function useWebSocketEditing({
     [recordId, currentUserName, onEditingUsersChange, showToast, hideToast]
   );
 
+  // Memoize the clearEditingNotification function to prevent unnecessary re-renders
+  const clearEditingNotification = useCallback(() => {
+    try {
+      hideToast();
+      setEditingUsers([]);
+    } catch (error) {
+      console.error(
+        '[useWebSocketEditing] Error clearing notifications:',
+        error
+      );
+    }
+  }, [hideToast]);
+
   const { sendMessage } = useWebSocket(WEBSOCKET_URL, {
-    onMessage: handleWebSocketMessage
+    onMessage: handleWebSocketMessage,
+    onClose: () => {
+      console.warn('[useWebSocketEditing] WebSocket connection closed');
+    },
+    onReconnectFailed: () => {
+      console.error('[useWebSocketEditing] WebSocket reconnection failed');
+      showToast('Connection lost. Please refresh the page.');
+    }
   });
 
   // Send start/stop editing messages when the component mounts/unmounts or recordId changes
   useEffect(() => {
     if (!recordId) return;
 
+    console.log(
+      '[useWebSocketEditing] Start editing record:',
+      recordId,
+      'by user:',
+      currentUserName
+    );
+
     // Reset the flag when recordId changes
     hasSentStopMessage.current = false;
 
-    const message = {
-      type: 'start_editing' as const,
+    // Send start_editing message
+    const message: WebSocketMessage = {
+      type: MESSAGE_TYPES.START_EDITING,
       payload: {
-        recordId: parseInt(recordId || '0', 10) || 0,
+        recordId: Number(recordId),
         userName: currentUserName || FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS
       }
     };
-
+    console.log(
+      '[useWebSocketEditing] Sending start_editing for record:',
+      recordId,
+      'user:',
+      currentUserName
+    );
     sendMessage(message);
 
     // Cleanup function
     return () => {
-      // Only send stop_editing if we haven't already
-      if (!hasSentStopMessage.current) {
+      // Only send stop_editing if we haven't already sent it and recordId is not null
+      if (!hasSentStopMessage.current && recordId) {
         hasSentStopMessage.current = true;
-        sendMessage({
-          type: 'stop_editing',
+        const message: WebSocketMessage = {
+          type: MESSAGE_TYPES.STOP_EDITING,
           payload: {
-            recordId: parseInt(recordId, 10) || 0,
+            recordId: Number(recordId),
             userName: currentUserName || FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS
           }
-        });
+        };
+        console.log(
+          '[useWebSocketEditing] Sending stop_editing for record:',
+          recordId,
+          'user:',
+          currentUserName
+        );
+        sendMessage(message);
+      } else {
+        console.log(
+          '[useWebSocketEditing] Skip sending stop_editing - already sent or no recordId'
+        );
       }
-
-      // Hide toast when unmounting
-      hideToast();
+      clearEditingNotification();
     };
-  }, [recordId, currentUserName, sendMessage, hideToast]);
-
-  // Memoize the clearEditingNotification function to prevent unnecessary re-renders
-  const clearEditingNotification = useCallback(() => {
-    hideToast();
-    setEditingUsers([]);
-  }, [hideToast]);
+  }, [recordId, currentUserName, sendMessage, clearEditingNotification]);
 
   return {
     editingUsers,
