@@ -22,7 +22,7 @@ This project showcases a production-ready SPA architecture built with React and 
 🌟 Key Accomplishments
 
 - Responsive Design: Ensures optimal user experience across all devices, reflecting a product-centric development approach.
-- Exceptional Test Coverage (90%+): Achieved through comprehensive unit tests, significantly reducing potential bugs and enhancing long-term maintainability.
+- Exceptional Test Coverage (85%+): Achieved through comprehensive unit tests, significantly reducing potential bugs and enhancing long-term maintainability.
 - Reliable User Experience: Validated the critical login flow across all major browsers (Chrome, Safari, Edge) on both desktop and mobile using Playwright E2E tests.
 - Superior Code Quality (SonarQube All A Rating): Rigorous analysis confirms high standards in Security, Reliability, and Maintainability, minimizing technical debt and ensuring a healthy codebase.
 - Automated CI/CD Pipeline (GitHub Actions, SonarQube, Codecov, Vercel): Establishes a streamlined, production-ready deployment process, ensuring rapid, reliable, and high-quality releases.
@@ -90,7 +90,7 @@ pnpm build
 ### 📊 Testing Strategy
 
 - Unit Tests: Focused on critical store logic, complex form validations, and isolated component behaviors, ensuring granular code reliability.
-- Coverage: Maintained above 90% (verified via `npx vitest run --coverage`), reflecting a commitment to robust code coverage without sacrificing test quality.
+- Coverage: Maintained above 85%+ (verified via `npx vitest run --coverage`), reflecting a commitment to robust code coverage without sacrificing test quality.
 
 <img src="./public/screenshots/test coverage.png" alt="Test Coverage" width="723" height="472">
 
