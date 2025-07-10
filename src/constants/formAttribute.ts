@@ -39,8 +39,6 @@ export const FORM_ATTRIBUTES = {
   // Buttons
   BUTTONS: {
     CANCEL: '取消',
-    SUBMIT: '新增',
-    UPDATE: '更新',
     SAVE: '儲存'
   },
 

@@ -428,9 +428,7 @@ export default function UserForm({
                   !form.formState.isValid || form.formState.isSubmitting
                 }
               >
-                {user
-                  ? FORM_ATTRIBUTES.BUTTONS.UPDATE
-                  : FORM_ATTRIBUTES.BUTTONS.SUBMIT}
+                {FORM_ATTRIBUTES.BUTTONS.SAVE}
               </Button>
             </div>
           </form>
