@@ -2,7 +2,7 @@ export const APP_TEXTS = {
   // Header
   HEADER: {
     TITLE: '用戶管理系統',
-    WELCOME: '歡迎, {{name}}!',
+    WELCOME: '歡迎, {{name}} !',
     LOGOUT: '登出'
   },
 

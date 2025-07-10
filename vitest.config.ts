@@ -6,7 +6,6 @@ import { defineConfig } from 'vitest/config';
 
 const __dirname = fileURLToPath(new URL('.', import.meta.url));
 
-// 使用 Vite 的配置
 const viteConfig = {
   plugins: [react(), tailwindcss()],
   resolve: {
@@ -36,7 +35,8 @@ export default defineConfig({
         'src/**/*.d.ts',
         '__tests__/**/*.test.{ts,tsx}',
         'src/components/ui/**/*',
-        'src/constants/**/*'
+        'src/constants/**/*',
+        'src/types/**/*'
       ]
     }
   }

@@ -137,27 +137,25 @@ export default function UserTable() {
                   {user.description}
                 </TableCell>
                 <TableCell>
-                  <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2">
+                  <div className="flex flex-row space-x-2">
                     <Button
                       variant="ghost"
-                      size="icon"
                       onClick={() => handleEditUser(user)}
-                      className="w-full sm:w-auto"
+                      className="h-10 w-10 p-0 flex items-center justify-center sm:h-9 sm:w-9"
                       data-testid={`edit-user-${user.id}-button`}
                       aria-label={`Edit user ${user.name}`}
                     >
-                      <Pencil className="h-4 w-4" />
+                      <Pencil className="h-5 w-5 sm:h-4 sm:w-4" />
                     </Button>
                     <Button
                       variant="ghost"
-                      size="icon"
-                      className="w-full sm:w-auto"
                       onClick={() => handleDeleteClick(user)}
+                      className="h-10 w-10 p-0 flex items-center justify-center sm:h-9 sm:w-9"
                       data-testid={`delete-user-${user.id}-button`}
                       aria-label={`Delete user ${user.name}`}
                     >
                       <Trash2
-                        className="h-4 w-4 text-red-500"
+                        className="h-5 w-5 text-red-500 sm:h-4 sm:w-4"
                         aria-hidden="true"
                       />
                     </Button>

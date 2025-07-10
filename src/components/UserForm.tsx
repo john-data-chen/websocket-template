@@ -7,6 +7,12 @@ import {
   DialogTitle
 } from '@/components/ui/dialog';
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger
+} from '@/components/ui/dropdown-menu';
+import {
   Form,
   FormControl,
   FormDescription,
@@ -16,7 +22,6 @@ import {
   FormMessage
 } from '@/components/ui/form';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
 import { Textarea } from '@/components/ui/textarea';
 import { FORM_ATTRIBUTES } from '@/constants/formAttribute';
 import { useFormDraft } from '@/hooks/useFormDraft';
@@ -31,6 +36,7 @@ import {
 import { useSessionStore } from '@/stores/useSessionStore';
 import type { User } from '@/types/user';
 import { zodResolver } from '@hookform/resolvers/zod';
+import { CheckIcon } from 'lucide-react';
 import { useEffect, useMemo, useRef } from 'react';
 import { useForm } from 'react-hook-form';
 import * as z from 'zod';
@@ -286,39 +292,94 @@ export default function UserForm({
             <FormField
               control={form.control}
               name="isActive"
-              data-testid="user-form-is-active"
-              aria-label="User is active"
+              data-testid="user-form-status"
+              aria-label="User status"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center justify-between rounded-lg border border-[#cbd5e1] p-4">
-                  <div className="space-y-0.5">
-                    <FormLabel className="text-base">
+                <FormItem className="grid grid-cols-1 gap-4 sm:grid-cols-4">
+                  <div className="space-y-1 sm:col-span-1">
+                    <FormLabel className="text-base font-medium text-foreground">
                       {FORM_ATTRIBUTES.FIELDS.STATUS.LABEL}
                     </FormLabel>
-                    <FormDescription>
+                    <FormDescription className="text-sm text-muted-foreground">
                       {field.value
                         ? FORM_ATTRIBUTES.FIELDS.STATUS.ACTIVE_DESCRIPTION
                         : FORM_ATTRIBUTES.FIELDS.STATUS.INACTIVE_DESCRIPTION}
                     </FormDescription>
                   </div>
-                  <FormControl>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-sm text-muted-foreground">
-                        {field.value
-                          ? FORM_ATTRIBUTES.FIELDS.STATUS.ACTIVE
-                          : FORM_ATTRIBUTES.FIELDS.STATUS.INACTIVE}
-                      </span>
-                      <Switch
-                        checked={field.value}
-                        onCheckedChange={field.onChange}
-                      />
-                    </div>
-                  </FormControl>
+                  <div className="sm:col-span-3">
+                    <FormControl>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            className="form-element min-h-[44px] flex w-full items-center justify-between text-left text-foreground"
+                            type="button"
+                            aria-haspopup="true"
+                            aria-expanded={open}
+                          >
+                            <span className="truncate">
+                              {field.value
+                                ? FORM_ATTRIBUTES.FIELDS.STATUS.ACTIVE
+                                : FORM_ATTRIBUTES.FIELDS.STATUS.INACTIVE}
+                            </span>
+                            <svg
+                              xmlns="http://www.w3.org/2000/svg"
+                              width="16"
+                              height="16"
+                              viewBox="0 0 24 24"
+                              fill="none"
+                              stroke="currentColor"
+                              strokeWidth="2"
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              className="ml-2 flex-shrink-0 text-muted-foreground"
+                              aria-hidden="true"
+                            >
+                              <path d="m6 9 6 6 6-6" />
+                            </svg>
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          className="w-[--radix-dropdown-menu-trigger-width] p-1.5 bg-background rounded-lg border border-border shadow-md font-sans text-base"
+                          align="start"
+                          sideOffset={4}
+                        >
+                          <DropdownMenuItem
+                            className="flex items-center justify-between px-4 py-2.5 text-base text-foreground hover:bg-accent hover:text-accent-foreground rounded-md transition-colors font-sans"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              field.onChange(true);
+                            }}
+                          >
+                            <span className="truncate">
+                              {FORM_ATTRIBUTES.FIELDS.STATUS.ACTIVE}
+                            </span>
+                            {field.value && (
+                              <CheckIcon className="h-4 w-4 ml-2 flex-shrink-0 text-primary" />
+                            )}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem
+                            className="flex items-center justify-between px-4 py-2.5 text-base text-foreground hover:bg-accent hover:text-accent-foreground rounded-md transition-colors font-sans"
+                            onClick={(e) => {
+                              e.preventDefault();
+                              field.onChange(false);
+                            }}
+                          >
+                            <span className="truncate">
+                              {FORM_ATTRIBUTES.FIELDS.STATUS.INACTIVE}
+                            </span>
+                            {!field.value && (
+                              <CheckIcon className="h-4 w-4 ml-2 flex-shrink-0 text-primary" />
+                            )}
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    </FormControl>
+                  </div>
                 </FormItem>
               )}
             />
 
             <FormField
-              control={form.control}
               name="description"
               data-testid="user-form-description"
               aria-label="User description"
