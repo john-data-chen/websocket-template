@@ -19,7 +19,7 @@ This project showcases a production-ready SPA architecture built with React and 
 - Use form validation to validate inputs. (Use Zod built-in validation to validate email, more details in Technical Decisions)
 - Pops a toaster message when multiple users are editing a user at the same time.
 
-🌟 Key Accomplishments
+### 🌟 Key Accomplishments
 
 - Responsive Design: Ensures optimal user experience across all devices, reflecting a product-centric development approach.
 - Exceptional Test Coverage (85%+): Achieved through comprehensive unit tests, significantly reducing potential bugs and enhancing long-term maintainability.
