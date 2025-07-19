@@ -50,7 +50,7 @@ This project showcases a production-ready SPA architecture built with React and 
 ### Requirements
 
 - [Node.JS](https://nodejs.org/en/download/) v22.x, please use [NVM](https://github.com/nvm-sh/nvm) or [FNM](https://github.com/Schniz/fnm) to install
-- [PNPM](https://pnpm.io/) (Recommended, you can use NPM or Yarn)
+- [PNPM](https://pnpm.io/) 10.x
 
 ### Useful Commands
 
