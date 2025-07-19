@@ -58,16 +58,6 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
         console.error('WebSocket error:', error);
       };
 
-      ws.onmessage = (event) => {
-        try {
-          // Parse the message but don't assign to a variable since it's handled by another store
-          JSON.parse(event.data);
-          // use another store to manage received message state
-        } catch (error) {
-          console.error('Error parsing WebSocket message:', error);
-        }
-      };
-
       set({ ws });
     } catch (error) {
       console.error('WebSocket connection error:', error);
