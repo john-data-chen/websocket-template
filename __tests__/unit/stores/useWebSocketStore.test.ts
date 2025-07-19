@@ -247,7 +247,7 @@ describe('useWebSocketStore', () => {
   it('should send messages when connected', () => {
     const { connect, sendMessage } = useWebSocketStore.getState();
     const testMessage = 'test message';
-    const expectedMessage = JSON.stringify(testMessage);
+    const expectedMessage = testMessage; // Should not stringify string messages
 
     act(() => {
       connect();
