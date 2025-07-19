@@ -125,7 +125,7 @@ export default function UserForm({
           userName: currentUser?.name ?? FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS
         }
       };
-      sendMessage(message);
+      sendMessage(JSON.stringify(message));
     } else if (!hasSentStopMessage.current) {
       // Only send stop_editing if we haven't sent it yet
       hasSentStopMessage.current = true;
@@ -137,7 +137,7 @@ export default function UserForm({
           userName: currentUser?.name ?? FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS
         }
       };
-      sendMessage(message);
+      sendMessage(JSON.stringify(message));
     }
 
     // Cleanup function to send stop_editing when component unmounts
@@ -151,7 +151,7 @@ export default function UserForm({
             userName: currentUser?.name ?? FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS
           }
         };
-        sendMessage(message);
+        sendMessage(JSON.stringify(message));
       } else if (!user?.id) {
         // console.log('[UserForm] No user ID available, skipping stop_editing');
       } else if (hasSentStopMessage.current) {
