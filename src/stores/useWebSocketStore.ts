@@ -1,12 +1,18 @@
 import { WEBSOCKET_CONFIG, WEBSOCKET_URL } from '@/constants/websocket';
+import type { WebSocketMessage } from '@/types/websocket';
+import { useEffect } from 'react';
 import { create } from 'zustand';
+
+type MessageHandler = (message: WebSocketMessage) => void;
 
 interface WebSocketState {
   ws: WebSocket | null;
   isConnected: boolean;
+  messageHandlers: Set<MessageHandler>;
   connect: (url?: string) => void;
   disconnect: () => void;
   sendMessage: (message: string) => void;
+  subscribe: (handler: MessageHandler) => () => void;
   shouldReconnect: boolean;
 }
 
@@ -14,6 +20,7 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
   ws: null,
   isConnected: false,
   shouldReconnect: true,
+  messageHandlers: new Set<MessageHandler>(),
 
   connect: (url = WEBSOCKET_URL) => {
     const { disconnect } = get();
@@ -32,6 +39,16 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
           ws,
           isConnected: true
         });
+      };
+
+      ws.onmessage = (event) => {
+        try {
+          const message = JSON.parse(event.data);
+          const { messageHandlers } = get();
+          messageHandlers.forEach((handler) => handler(message));
+        } catch (error) {
+          console.error('Error handling WebSocket message:', error);
+        }
       };
 
       ws.onclose = () => {
@@ -74,17 +91,29 @@ export const useWebSocketStore = create<WebSocketState>((set, get) => ({
     }
   },
 
-  sendMessage: (message: string) => {
+  sendMessage: (message: unknown) => {
     const { ws, isConnected } = get();
     if (isConnected && ws) {
       try {
-        ws.send(JSON.stringify(message));
+        const messageStr =
+          typeof message === 'string' ? message : JSON.stringify(message);
+        ws.send(messageStr);
       } catch (error) {
         console.error('Error sending WebSocket message:', error);
       }
     } else {
       console.warn('WebSocket is not connected');
     }
+  },
+
+  subscribe: (handler: MessageHandler) => {
+    const { messageHandlers } = get();
+    messageHandlers.add(handler);
+
+    // Return unsubscribe function
+    return () => {
+      messageHandlers.delete(handler);
+    };
   }
 }));
 
@@ -95,6 +124,15 @@ export const useWebSocketConnection = () => {
 };
 
 export const useWebSocketActions = () => {
-  const { connect, disconnect, sendMessage } = useWebSocketStore();
-  return { connect, disconnect, sendMessage };
+  const { connect, disconnect, sendMessage, subscribe } = useWebSocketStore();
+  return { connect, disconnect, sendMessage, subscribe };
+};
+
+export const useWebSocketMessage = (handler: MessageHandler) => {
+  const { subscribe } = useWebSocketActions();
+
+  useEffect(() => {
+    const unsubscribe = subscribe(handler);
+    return () => unsubscribe();
+  }, [handler, subscribe]);
 };

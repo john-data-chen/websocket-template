@@ -1,10 +1,13 @@
 import { FORM_ATTRIBUTES } from '@/constants/formAttribute';
 import { TOAST_MESSAGES } from '@/constants/toast';
-import { MESSAGE_TYPES, WEBSOCKET_URL } from '@/constants/websocket';
+import { MESSAGE_TYPES } from '@/constants/websocket';
+import {
+  useWebSocketActions,
+  useWebSocketMessage
+} from '@/stores/useWebSocketStore';
 import type { WebSocketMessage } from '@/types/websocket';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useToast } from './useToast';
-import { useWebSocket } from './useWebSocket';
 
 interface UseWebSocketEditingOptions {
   recordId: string | null;
@@ -96,16 +99,10 @@ export function useWebSocketEditing({
     }
   }, [hideToast]);
 
-  const { sendMessage } = useWebSocket(WEBSOCKET_URL, {
-    onMessage: handleWebSocketMessage,
-    onClose: () => {
-      console.warn('[useWebSocketEditing] WebSocket connection closed');
-    },
-    onReconnectFailed: () => {
-      console.error('[useWebSocketEditing] WebSocket reconnection failed');
-      showToast('Connection lost. Please refresh the page.');
-    }
-  });
+  const { sendMessage } = useWebSocketActions();
+
+  // Subscribe to WebSocket messages
+  useWebSocketMessage(handleWebSocketMessage);
 
   // Send start/stop editing messages when the component mounts/unmounts or recordId changes
   useEffect(() => {
@@ -122,7 +119,7 @@ export function useWebSocketEditing({
         userName: currentUserName || FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS
       }
     };
-    sendMessage(message);
+    sendMessage(JSON.stringify(message));
 
     // Cleanup function
     return () => {
@@ -136,7 +133,7 @@ export function useWebSocketEditing({
             userName: currentUserName || FORM_ATTRIBUTES.DEFAULTS.ANONYMOUS
           }
         };
-        sendMessage(message);
+        sendMessage(JSON.stringify(message));
       } else {
         // console.log(
         //   '[useWebSocketEditing] Skip sending stop_editing - already sent or no recordId'
