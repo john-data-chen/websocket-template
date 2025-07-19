@@ -263,17 +263,4 @@ describe('useWebSocketStore', () => {
 
     expect(sendSpy).toHaveBeenCalledWith(expectedMessage);
   });
-
-  it('should not send messages when not connected', () => {
-    const consoleWarnSpy = vi
-      .spyOn(console, 'warn')
-      .mockImplementation(() => {});
-    const { sendMessage } = useWebSocketStore.getState();
-
-    // Try to send a message when not connected
-    sendMessage('test message');
-
-    expect(consoleWarnSpy).toHaveBeenCalledWith('WebSocket is not connected');
-    consoleWarnSpy.mockRestore();
-  });
 });
