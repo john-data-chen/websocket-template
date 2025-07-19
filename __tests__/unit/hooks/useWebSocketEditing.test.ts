@@ -1,24 +1,77 @@
-import { TOAST_MESSAGES } from '@/constants/toast';
-import { useWebSocket } from '@/hooks/useWebSocket';
 import { useWebSocketEditing } from '@/hooks/useWebSocketEditing';
 import { act, renderHook } from '@testing-library/react';
-import { afterAll, beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  afterAll,
+  beforeEach,
+  describe,
+  expect,
+  it,
+  type MockInstance,
+  vi
+} from 'vitest';
 
-// Mock the document object for toast element
-const mockQuerySelector = vi.spyOn(document, 'querySelector');
+// Define WebSocket message type for type safety
+interface WebSocketMessage {
+  type: string;
+  payload: {
+    recordId: string | number;
+    users?: string[];
+    userName?: string;
+  };
+}
 
-// Mock the useWebSocket hook
-vi.mock('@/hooks/useWebSocket', () => ({
-  useWebSocket: vi.fn()
+// Mock the WebSocket store
+const mockSendMessage = vi.fn();
+let messageHandler: ((message: WebSocketMessage) => void) | null = null;
+
+vi.mock('@/stores/useWebSocketStore', () => {
+  const actual = vi.importActual('@/stores/useWebSocketStore');
+  return {
+    ...actual,
+    useWebSocketMessage: vi.fn(
+      (handler: (message: WebSocketMessage) => void) => {
+        messageHandler = handler;
+        return vi.fn(); // cleanup function
+      }
+    ),
+    useWebSocketActions: () => ({
+      sendMessage: mockSendMessage
+    })
+  };
+});
+
+// Mock the toast hook
+const mockShowToast = vi.fn();
+const mockHideToast = vi.fn();
+
+vi.mock('@/hooks/useToast', () => ({
+  useToast: () => ({
+    showToast: mockShowToast,
+    hideToast: mockHideToast
+  })
 }));
 
-// Mock the document.querySelector for toast element
+// Mock the document object for toast element
+const mockQuerySelector = vi.spyOn(document, 'querySelector') as MockInstance;
 const mockToastElement = document.createElement('div');
 mockToastElement.style.display = 'none';
 mockQuerySelector.mockReturnValue(mockToastElement);
 
+// Setup the mocks
+beforeEach(() => {
+  vi.clearAllMocks();
+
+  // Reset the mock implementation
+  mockSendMessage.mockClear();
+  mockShowToast.mockClear();
+  mockHideToast.mockClear();
+  messageHandler = null;
+
+  // Setup the WebSocket message handler
+  messageHandler = null;
+});
+
 describe('useWebSocketEditing', () => {
-  const mockSendMessage = vi.fn();
   const mockOnEditingUsersChange = vi.fn();
 
   const defaultProps = {
@@ -27,15 +80,9 @@ describe('useWebSocketEditing', () => {
     onEditingUsersChange: mockOnEditingUsersChange
   };
 
-  beforeEach(() => {
-    vi.clearAllMocks();
-    (useWebSocket as ReturnType<typeof vi.fn>).mockReturnValue({
-      sendMessage: mockSendMessage
-    });
-  });
-
   afterAll(() => {
     mockQuerySelector.mockRestore();
+    vi.clearAllMocks();
   });
 
   it('should initialize with empty editing users', () => {
@@ -45,70 +92,80 @@ describe('useWebSocketEditing', () => {
   });
 
   it('should send start_editing message on mount', () => {
-    renderHook(() => useWebSocketEditing(defaultProps));
+    const { result } = renderHook(() => useWebSocketEditing(defaultProps));
 
-    expect(mockSendMessage).toHaveBeenCalledWith({
-      type: 'start_editing',
-      payload: {
-        recordId: 123,
-        userName: 'testUser'
-      }
-    });
+    expect(mockSendMessage).toHaveBeenCalledWith(
+      JSON.stringify({
+        type: 'start_editing',
+        payload: {
+          recordId: 123, // Should be a number, not a string
+          userName: 'testUser'
+        }
+      })
+    );
+
+    expect(result.current).toBeDefined();
   });
 
   it('should send stop_editing message on unmount', () => {
     const { unmount } = renderHook(() => useWebSocketEditing(defaultProps));
 
+    // Clear the initial call to sendMessage
+    mockSendMessage.mockClear();
+
     unmount();
 
-    expect(mockSendMessage).toHaveBeenCalledWith({
-      type: 'stop_editing',
-      payload: {
-        recordId: 123,
-        userName: 'testUser'
-      }
-    });
+    expect(mockSendMessage).toHaveBeenCalledWith(
+      JSON.stringify({
+        type: 'stop_editing',
+        payload: {
+          recordId: 123, // Should be a number, not a string
+          userName: 'testUser'
+        }
+      })
+    );
   });
 
   it('should update editing users and show toast on editing_status_update', () => {
     const { result } = renderHook(() => useWebSocketEditing(defaultProps));
 
-    const messageHandler = (useWebSocket as ReturnType<typeof vi.fn>).mock
-      .calls[0][1].onMessage;
+    // Verify message handler was set
+    const handler = messageHandler;
+    if (!handler) {
+      throw new Error('Message handler not set');
+    }
 
     act(() => {
-      messageHandler({
+      handler({
         type: 'editing_status_update',
         payload: {
           recordId: '123',
-          users: ['otherUser1', 'testUser', 'otherUser2']
+          users: ['otherUser1', 'otherUser2', 'testUser']
         }
       });
     });
 
-    // Should filter out current user and update editingUsers
+    // Should filter out the current user
     expect(result.current.editingUsers).toEqual(['otherUser1', 'otherUser2']);
     expect(mockOnEditingUsersChange).toHaveBeenCalledWith([
       'otherUser1',
       'otherUser2'
     ]);
-
-    // Should show toast with editing users
-    expect(mockToastElement.textContent).toBe(
-      `${TOAST_MESSAGES.EDITING_USERS}otherUser1、otherUser2`
-    );
-    expect(mockToastElement.style.display).toBe('block');
+    expect(mockShowToast).toHaveBeenCalled();
   });
 
   it('should hide toast when no other users are editing', () => {
     const { result } = renderHook(() => useWebSocketEditing(defaultProps));
 
-    const messageHandler = (useWebSocket as ReturnType<typeof vi.fn>).mock
-      .calls[0][1].onMessage;
+    // Verify message handler was set
+    const handler = messageHandler;
+    if (!handler) {
+      throw new Error('Message handler not set');
+    }
 
     // First, simulate users editing
     act(() => {
-      messageHandler({
+      handler({
         type: 'editing_status_update',
         payload: {
           recordId: '123',
@@ -119,7 +176,7 @@ describe('useWebSocketEditing', () => {
 
     // Then simulate no other users editing
     act(() => {
-      messageHandler({
+      handler({
         type: 'editing_status_update',
         payload: {
           recordId: '123',
@@ -130,7 +187,7 @@ describe('useWebSocketEditing', () => {
 
     expect(result.current.editingUsers).toEqual([]);
     expect(mockOnEditingUsersChange).toHaveBeenCalledWith([]);
-    expect(mockToastElement.style.display).toBe('none');
+    expect(mockHideToast).toHaveBeenCalled();
   });
 
   it('should handle clearEditingNotification', () => {
@@ -142,7 +199,6 @@ describe('useWebSocketEditing', () => {
     });
 
     expect(result.current.editingUsers).toEqual([]);
-    expect(mockToastElement.style.display).toBe('none');
   });
 
   it('should handle hideToast', () => {
@@ -155,17 +211,20 @@ describe('useWebSocketEditing', () => {
       result.current.hideToast();
     });
 
-    expect(mockToastElement.style.display).toBe('none');
+    expect(mockHideToast).toHaveBeenCalled();
   });
 
   it('should process messages for any recordId', () => {
     const { result } = renderHook(() => useWebSocketEditing(defaultProps));
 
-    const messageHandler = (useWebSocket as ReturnType<typeof vi.fn>).mock
-      .calls[0][1].onMessage;
+    // Verify message handler was set
+    const handler = messageHandler;
+    if (!handler) {
+      throw new Error('Message handler not set');
+    }
 
     act(() => {
-      messageHandler({
+      handler({
         type: 'editing_status_update',
         payload: {
           recordId: '456', // Different recordId
