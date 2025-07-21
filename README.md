@@ -35,13 +35,13 @@ This project showcases a production-ready SPA architecture built with React and 
 ## 🛠️ Technical Decisions
 
 - **Frontend**: [React](https://reactjs.org/), [TypeScript](https://www.typescriptlang.org/) - modern UI with strong type safety
-- **Build**: [ESLint](https://eslint.org/), [Prettier](https://prettier.io/), [Lint Staged](https://github.com/okonet/lint-staged), [Husky](https://github.com/typicode/husky) - automated code quality checks and style formatting during commit, preventing problems into codebase and make consistent code style in team work
+- **Build**: [ESLint](https://eslint.org/), [Prettier](https://prettier.io/), [Lint Staged](https://github.com/okonet/lint-staged), [Husky](https://github.com/typicode/husky) - they are the 1st quality gate: automated code quality checks and style formatting during commit, preventing problems into codebase and make consistent code style in team work
 - **UI**: [Tailwind CSS](https://tailwindcss.com/), [Shadcn/UI](https://ui.shadcn.com/) - for consistent, responsive, and scalable styling, enabling rapid and maintainable UI development
-- **Testing**: [Vitest](https://vitest.dev/), [Playwright](https://playwright.dev/) - easier to setup and faster execution than Jest and Cypress, chosen for their efficiency and comprehensive testing capabilities
+- **Testing**: [Vitest](https://vitest.dev/), [Playwright](https://playwright.dev/) - they are the 2nd quality gate: easier to setup and faster execution than Jest and Cypress, chosen for their efficiency and comprehensive testing capabilities
 - **State Management**: [Zustand](https://zustand-demo.pmnd.rs/) - minimal and testable global state management, 40% code reduction compared to Redux
 - **Forms**: [React Hook Form](https://react-hook-form.com/), [Zod](https://zod.dev/) - composable form logic and schema validation. [Zod's built-in email validation](https://zod.dev/api#emails) was chosen for realistic coverage without regex complexity or code smell.
 - **Websocket**: [Socket.io](https://socket.io/) - for intuitive WebSocket API and event abstraction, simplifying real-time communication implementation
-- **CI/CD**: [GitHub Actions](https://github.com/features/actions), [Vercel](https://vercel.com/home), [Codecov](https://codecov.io/), [SonarQube](https://sonarcloud.io/) - Every pull request triggers a comprehensive pipeline, enforcing code quality gates and ensuring production-readiness through automated testing and deployment
+- **CI/CD**: [GitHub Actions](https://github.com/features/actions), [Vercel](https://vercel.com/home), [Codecov](https://codecov.io/), [SonarQube](https://sonarcloud.io/) - they are the 3rd quality gate: every pull request triggers a comprehensive pipeline, enforcing code quality gates and ensuring production-readiness through automated testing and deployment
 
 ---
 
@@ -73,7 +73,7 @@ pnpm test
 # Run E2E tests by Playwright
 pnpm playwright
 
-# ESLint fix
+# Lint fix
 pnpm lint
 
 # Format code
